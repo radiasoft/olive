@@ -1,0 +1,645 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.75in]{geometry}
+\usepackage{color}
+\usepackage{graphicx}
+
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\HH}{\mathcal{H}}
+
+\date{\today} %{10 June 2016}
+\author{E.~G. Evstatiev}
+\title{Notes on beam energy recovery model}
+
+\begin{document}
+
+\maketitle
+
+\section{General case}
+\label{General_case}
+
+This calculation repeats a major part of the calculation from my paper in POP~\cite{evstatiev_relativistic_2005}. 
+The system of beam particles and fields is described by the following Lagrangian:
+%
+\begin{align}
+\LL =& \sum_{j=1}^{N_p}\left\{ -mc^2\sqrt{1-\frac{\dot{\mathbf{r}}_j} {c^2}} 
+-\frac{e}{c}\dot{\mathbf{r}}_j \cdot \mathbf{A}(\mathbf{r}_j) \right\}
++\frac{1}{8\pi}\int \!\!d^3 x \left(\left|\frac{1}{c}\frac{\partial \mathbf{A}(\mathbf{x})}{\partial t}\right|^2
+ - \left| \nabla\times \mathbf{A}(\mathbf{x}) \right|^2  \right)
+\label{L_cont}
+\end{align}
+%
+For now, let's neglect the electrostatic potential (beam self-interaction) and concentrate on the 
+exchange of energy between the beam and the RF mode(s).
+
+We represent the magnetic vector potential as:
+%
+\begin{equation}
+\mathbf{A}(\mathbf{x}) = \sum_{l>0}\left[ \mathbf{a}_l(t)\psi_l(\mathbf{x}) + \mathbf{a}_l(t)^*\psi_l^*(\mathbf{x}) 
+\right]
+\label{A_repr}
+\end{equation}
+%
+where $\psi_l$ are the cavity eigenmodes with index $l=(l_1,l_2,l_e)$ and the amplitudes $\mathbf{a}_l(t)$ include
+a fast time scale $e^{-i\omega_l t}$ and a slow time scale describing the (time-averaged) energy exchange between
+fields and particles. 
+%
+We use the adiabatic approximation
+%
+\begin{equation}
+\left| \dot{\mathbf{a}}_l(t)\right| \ll \omega_l \left| \mathbf{a}_l(t)\right|
+\label{Adiab_assumpt} 
+\end{equation}
+%
+and then the time derivative of this expression becomes
+\begin{equation}
+\dot{\mathbf{a}}_l(t) = -i\omega_l \mathbf{a} + \underline{\dot{\mathbf{a}}}_l\, .
+\label{Adiab_time_deriv} 
+\end{equation}
+%
+The underline denotes the time derivative with respect to the slow time scale only; this notation is auxiliary
+and not used in the final result, but it is convenient.
+%
+We assume the eigenfunctions are normalized as:
+%
+\begin{equation}
+\int \!\!d^3 x\,  \psi_l(\mathbf{x}) \psi_{l'}^*(\mathbf{x}) = \delta_{l l'}\, .
+\label{Eigenfunction_norm} 
+\end{equation}
+%
+
+The goal is now to use a finite number of eigenmodes in the Lagrangian, so we substitute \eqref{A_repr} into
+\eqref{L_cont}. Consider the two field terms separately:
+%
+\begin{align}
+\frac{1}{8\pi c^2}\int \!\!d^3 x\,\left|\frac{\partial \mathbf{A}(\mathbf{x})}{\partial t}\right|^2 =&
+\frac{1}{8\pi c^2}\int \!\!d^3 x\, \left|  \sum_{l>0} 
+\left[-i\omega_l \left(\mathbf{a}_l(t)\psi_l(\mathbf{x}) - \mathbf{a}_l^*(t)\psi_l^*(\mathbf{x}) \right)
++ \left(\underline{\dot{\mathbf{a}}}_l(t)\psi_l(\mathbf{x}) 
++ \underline{\dot{\mathbf{a}}}_l^*(t)\psi_l^*(\mathbf{x}) \right)
+ \right] \right|^2 \nonumber \\
+\simeq & \frac{1}{4\pi c^2}\sum_{l>0}\left[ \omega_l^2|\mathbf{a}_l|^2 
+- i\omega_l( \mathbf{a}_l\cdot\underline{\dot{\mathbf{a}}}_l^* - \mathbf{a}^*\cdot\underline{\dot{\mathbf{a}}}_l ) 
+\right]
+\label{A_dt_term}
+\end{align}
+%
+and
+%
+\begin{align}
+-\frac{1}{8\pi} \int \!\!d^3 x\,\left| \nabla\times \mathbf{A} \right|^2 =&
+-\frac{1}{8\pi} \int \!\!d^3 x\,\left| \sum_{l>0}\left( \nabla\psi_l\times \mathbf{a}_l 
++ \nabla{\psi^*}\times\mathbf{a}^*\right) \right|^2 \nonumber \\ 
+\simeq& - \frac{1}{4\pi}\sum_{l>0}\gamma_l^2|\mathbf{a}_l|^2
+\label{A_curl_term}
+\end{align}
+%
+In the last calculation we have used $\mathbf{a}_l\cdot\nabla\psi_l = 0$ (following from $\nabla\cdot\mathbf{A}=0$).
+We also used
+%
+\begin{equation}
+\int \!\!d^3 x\, \nabla\psi_l\cdot\nabla\psi_{l'}^* = 
+- \int \!\!d^3 x\, \psi_l \nabla^2\psi_{l'} = 
+\gamma_l^2\delta_{ll'}
+\label{Using_int_nabla_psi_squared}
+\end{equation}
+%
+with eigenvalue $\gamma_l^2$
+%
+\begin{equation}
+\nabla^2\psi_l = -\gamma_l^2\psi_l\, .
+\label{Eigenvalue}
+\end{equation}
+%
+We have neglected quadratic terms in the slow time scale derivative, i.e., quadratic in 
+$\underline{\dot{\mathbf{a}}}_l$.
+
+Adding the two terms \eqref{A_dt_term} and \eqref{A_curl_term} we have:
+%
+\begin{align}
+\frac{1}{8\pi c^2}\int \!\!d^3 x\,\left|\frac{\partial \mathbf{A}(\mathbf{x})}{\partial t}\right|^2
+-\frac{1}{8\pi} \int \!\!d^3 x\,\left| \nabla\times \mathbf{A} \right|^2 \simeq& 
+\frac{1}{4\pi}\sum_{l>0}\left( \frac{\omega_l^2}{c^2} - \gamma_l^2 \right) |\mathbf{a}_l|^2
+-\frac{1}{4\pi}\sum_{l>0}\frac{i\omega_l}{c^2}\left(  \mathbf{a}_l\cdot\underline{\dot{\mathbf{a}}}_l^* - \mathbf{a}^*\cdot\underline{\dot{\mathbf{a}}}_l  \right) \nonumber\\
+=& -\frac{1}{2\pi} \sum_{l>0}\frac{\omega_l^2}{c^2}\left( \mathbf{a}_l\cdot\mathbf{a}^*\right) 
++ \frac{1}{4i\pi}\sum_{l>0}\frac{\omega_l}{c^2}\left(  \mathbf{a}_l\cdot{\dot{\mathbf{a}}}_l^* - \mathbf{a}^*\cdot{\dot{\mathbf{a}}}_l \right)
+\label{A_averaged}
+\end{align}
+%
+where we have used the dispersion relation for the cavity $\omega_l^2 = c^2\gamma_l^2$ 
+to eliminate the first term in the first line of Eq.~\eqref{A_averaged} and formula \eqref{Adiab_time_deriv} 
+to express $\underline{\dot{\mathbf{a}}}_l$ through $\mathbf{a}_l$ and ${\dot{\mathbf{a}}}_l$.
+
+Then we have a Lagrangian for the combined system of fields and particles:
+%
+\begin{align}
+\LL =&  -mc^2\sum_{j=1}^{N_p}\sqrt{1-\frac{\dot{\mathbf{r}}_j} {c^2}} 
+-\frac{e}{c}\sum_{j=1}^{N_p}\sum_{l>0}\dot{\mathbf{r}}_j \cdot 
+\left[ \mathbf{a}_l(t)\psi_l(\mathbf{r}_j) + \mathbf{a}_l(t)^*\psi_l^*(\mathbf{r}_j) \right] \nonumber\\
+& - \frac{1}{2\pi} \sum_{l>0}\frac{\omega_l^2}{c^2}\left( \mathbf{a}_l\cdot\mathbf{a}_l^*\right) 
++ \frac{1}{4i\pi}\sum_{l>0}\frac{\omega_l}{c^2}\left(  \mathbf{a}_l\cdot{\dot{\mathbf{a}}}_l^* - \mathbf{a}_l^*\cdot{\dot{\mathbf{a}}}_l \right).
+\label{L_reduced}
+\end{align}
+%
+
+Only a finite number of modes are to be used in \eqref{L_reduced}.
+
+\section{Rectangular cavity}
+\label{Rectangular cavity}
+
+Consider a rectangular cavity of $x$-, $y$-, $z$-dimensions $(a,b,d)$ and volume $V=abd$.
+
+\subsection{TM modes}
+\label{TM_rectangular_modes}
+
+For TM modes the normalized eigenfunction $\psi_l$ (with $l=(m,n,p)$\,) is:
+%
+\begin{equation}
+\psi_{mnp}(x,y,z) = C_{mnp}\sin\left(\frac{m\pi x}{a}\right) \sin\left(\frac{n\pi y}{b}\right) 
+\cos\left(\frac{p\pi z}{d}\right), \quad 
+C_{mnp} = \left\{
+\begin{tabular}{l}
+$\frac{2}{\sqrt{V}}, \quad p = 0$ , \\
+$\frac{2\sqrt{2}}{\sqrt{V}}, \quad p\ne 0$ .
+\end{tabular}
+\right.
+\label{psi_rectangular_TM}
+\end{equation}
+%
+the eigenvalue is
+%
+\begin{equation}
+\nabla^2\psi_{mnp} = -\gamma_{mnp}^2\psi_{mnp}, \qquad
+\gamma_l^2\equiv \gamma_{mnp}^2 = \left(\frac{m\pi}{a} \right)^2 + \left(\frac{n\pi}{b} \right)^2
++ \left(\frac{p\pi}{d} \right)^2
+\label{eigenvakue_rectangular_TM}
+\end{equation}
+%
+
+\subsection{Lagrangian for the special case of rectangular modes}
+\label{L_rectangular_TM}
+
+For a one-dimensional calculation we can set $x=a/2$ and $y=b/2$ (axis of the cavity) with the lowest order mode
+ TM$_{110}$. Assuming the $x$- and $y$-dependence of the fields doesn't change, we can reduce the Lagrangian
+\eqref{L_reduced} to only $z$-dependent quantities:
+%
+\begin{align}
+\LL =& -mc^2\sum_{j=1}^{N_p}\sqrt{1-\frac{\dot{{z}}_j} {c^2}} 
+- \frac{e}{c} \left(\frac{2}{\sqrt{V}}\right)
+\sum_{j=1}^{N_p} \dot{z}_j \left[a_z(t) + a_z^*(t)  \right] \nonumber\\
+& - \frac{1}{2\pi} \frac{\omega_{_{110}}^2}{c^2}\left( {a}_z {a}_z^*\right) 
++ \frac{1}{4i\pi} \frac{\omega_{_{110}}}{c^2}\left( {a}_z {\dot{{a}}}_z^* - {a}_z^*{\dot{{a}}}_z \right)
+\label{L_z}
+\end{align}
+%
+where
+%
+\begin{equation}
+\omega_{_{110}}^2 = \pi^2 c^2 \left( \frac{1}{a^2} + \frac{1}{b^2} \right), \qquad
+\psi_{_{110}}(z) = C_{110} = \frac{2}{\sqrt{V}} = \mbox{const}.
+\end{equation}
+
+\subsection{Equations of motion for particles and fields}
+\label{EOM}
+
+The equations of motion become as follows. For the particles we have:
+%
+\begin{equation}
+\frac{d}{dt}\frac{\partial\LL}{\partial \dot{z}_j} = \frac{\partial \LL}{\partial z_j}, \qquad j=1,2,\ldots, N_p \nonumber
+\end{equation}
+%
+which gives
+%
+\begin{equation}
+\ddot{z}_j = \frac{e}{mc}\frac{2}{\sqrt{V}}\left(1-\frac{\dot{z}_j^2}{c^2} \right)^{3/2} (a_z + a_z^*).
+\label{ddot_zj}
+\end{equation}
+%
+For the equations for the fields we need to vary the Lagrangian independently with respect to 
+$a_z$ and $a_z^*$ and set the variation to zero 
+(integration by parts with respect to time  must be done in the action $S=\int dt \LL$ to transform $-a_z^*\delta\dot{a_z}$
+to $\dot{a}_z^*\delta a_z$ and similarly for the term $a_z\delta\dot{a}_z^*$)
+%
+\begin{equation}
+\delta\LL = (\ldots)\delta a_z + (\ldots)\delta a_z^* = 0,
+\end{equation}
+%
+which gives two complex conjugate equations:
+\begin{equation}
+\dot{a}_z = -i\omega_{_{110}}a_z - iec\left(\frac{4\pi}{\sqrt{V}}\right) \sum_{j=1}^{N_p} \dot{z}_j
+\label{dot_az}
+\end{equation}
+%
+and an equation for $a_z^*$, which is complex conjugate to \eqref{dot_az}.
+%
+Defining velocity $v_j = \dot{z}_j$ we can rewrite equations \eqref{ddot_zj} and \eqref{dot_az} 
+as first order ODEs:
+%
+\begin{align}
+\dot{z}_j =& v_j \label{dot_zj_110}\, , \\
+\dot{v}_j =& \frac{e}{mc}\left(\frac{2}{\sqrt{V}}\right) \left(1-\frac{v_j^2}{c^2} \right)^{3/2} (a_z + a_z^*)
+\nonumber\\
+ =& \frac{e}{mc}\left(\frac{4}{\sqrt{V}}\right)\left(1-\frac{v_j^2}{c^2} \right)^{3/2}\Re[a_z]
+\, ,\label{dot_vj_110} \\
+\dot{a}_z =& -i\omega_{_{110}}a_z - iec \left(\frac{4\pi}{\sqrt{V}}\right) \sum_{j=1}^{N_p}v_j\, .
+\label{dot_az_110}
+\end{align}
+%
+
+Note that the system \eqref{dot_zj_110}--\eqref{dot_az_110} includes the electron charge $e$, which is a 
+\textit{macrocharge}, i.e., one computational particle may have many (thousands) of real electrons; 
+the same is true for the electron mass $m$. However, the mass only enters in the ratio $e/m$ where the
+computational weight of $e$ and $m$ cancels out of the particle EOM. The computational weight must
+be included in the equation \eqref{dot_az_110} for $a_z$.
+Secondly, since the equation for particle $j$ only involves information from the same particle, when
+looping over particles as part of the time integration, we may perform the sum over particle velocities needed in
+equation \eqref{dot_az_110}, so not much extra computational effort should be involved.
+The equation for $a_z$ may be split into real and imaginary parts instead of solving the two complex
+conjugate equations for $a_z^*$ and $a_z^*$. 
+Equation \eqref{dot_az_110} can be written as:
+%
+\begin{equation}
+\frac{d\Re[{a}_z]}{dt} = \omega_{_{110}}\Im[a_z], \qquad 
+\frac{d\Im[{a}_z]}{dt} = -\omega_{_{110}}\Re[a_z] - ec\left(\frac{4\pi}{\sqrt{V}}\right) \sum_{j=1}^{N_p}v_j\, .
+\label{dot_az_Re_Im}
+\end{equation}
+%
+The equations are in cgs units.
+
+\newpage
+\subsection{Dimensionless variables}
+\label{Dimensionless}
+
+We can put all variables in dimensionless form as follows. Time in measured in units of $\omega_0^{-1}$, 
+velocity in units of $c$, and vector potential in units of $\gamma_0^{3/2}mc^2/e$ (the extra factor of $\gamma_0^{3/2}$
+appears because of the chosen normalization for $\psi_l$, Eq.~\eqref{Eigenfunction_norm}; 
+\textcolor{blue}{we may want to change that}), and distance in $c/\omega_0$. 
+Here $\omega_0$ is a reference rf frequency (can be chosen as the the frequency of the fundamental cavity mode). 
+We can also define a reference wave vector (eigenvalue) $\gamma_0=\omega_0/c$, which means distances
+are measured in $\gamma_0^{-1}$. 
+The macroparticle weight is $w$. The following two dimensionless parameters appear:
+%
+\begin{equation}
+\xi_0 = \frac{C_{110}}{\gamma_0^{3/2}} = \left(\frac{2} {\gamma_0^{3/2}\sqrt{V}}\right), \qquad 
+\eta_0 = \left(\frac{mc^2}{\gamma_0e^2} \right).
+\label{dimensionless_parameters}
+\end{equation}
+%
+The values of these parameters depend on the reference wave vector 
+$\gamma_0$. For example, for $a=b=7.5\,$cm we have $\gamma_0=0.59$ (choosing the wave number for mode TM$_{110}$).
+Choosing the cavity length to be matching the the particle path traveled at $c$ in a wave period, 
+we have $d\simeq 5.3\,$cm; then $\xi_0=0.26$, $\eta_0=1.9\times 10^{12}$, and $f_{\rm rf}=\omega_0/(2\pi)=2.826\,$GHz. 
+An example for the initial value of (the complex-valued) $a_z$ for electric field amplitude $E_0=50\,$MV/m is 
+$a_0 = (E_0\mbox{[V/m]}/(2\gamma_0\xi_0)(e/mc^2)(10^{-4}/3)\simeq 1.93$ (there is a conversion factor $(10^{-4}/3)$ 
+of the electric field from SI to cgs and an extra $1/2$ from the relation between 
+the real-valued $\mathbf{A}$ and the complex-valued $a_z$).
+An example of particle weight (the charge in cgs is in statcoulombs!) for electron current of $1\,$mA 
+and $N_p=100$ is $w=2.082\times 10^5$.
+
+We have the following Lagrangian (in units of $mc^2$) with all variables being dimensionless:
+%
+\begin{align}
+\LL =& -\sum_{j=1}^{N_p} w\,\left\{\sqrt{1-\dot{z}_j^2}  + \xi_0
+ \dot{z}_j\,2\Re[a_z] \right\} \nonumber\\
+& + \eta_0 \left\{ - \frac{1}{2\pi}\omega_{_{110}}^2(a_z a_z^*)
++ \frac{1}{4\pi i} \omega_{_{110}} (a_z\dot{a}_z^* - a_z^*\dot{a}_z ) \right\}\, .
+\label{L_dimensionless}
+\end{align}
+%
+
+The EOM become:
+%
+\begin{align}
+\dot{z}_j =&\, v_j \label{dot_zj_dimensionless}\, , \\
+\dot{v}_j =&\, \xi_0 \left(1-v_j^2 \right)^{3/2} (\dot{a}_z + \dot{a}_z^*)
+\nonumber\\
+ =&\, 2\xi_0\omega_{_{110}}\left(1-v_j^2\right)^{3/2}\Im[a_z]
+\, ,\label{dot_vj_dimensionless} \\
+\dot{a}_z =& -i\omega_{_{110}}a_z - i\left(\frac{2\pi w\xi_0}{\omega_{_{110}}\eta_0}\right) \sum_{j=1}^{N_p}v_j\, .
+\label{dot_az_dimensionless}
+\end{align}
+%
+Equation \eqref{dot_az_dimensionless} is equivalent to two equations for the real and
+imaginary parts:
+%
+\begin{equation}
+\frac{d\Re[{a}_z]}{dt} = \omega_{_{110}}\Im[a_z], \qquad 
+\frac{d\Im[{a}_z]}{dt} = -\omega_{_{110}}\Re[a_z] - \left(\frac{2\pi w\xi_0}{\omega_{_{110}}\eta_0}\right) \sum_{j=1}^{N_p}v_j\, .
+\label{dot_az_Re_Im_dimensionless}
+\end{equation}
+%
+
+For the above example of initial values, the magnitude of the second term on the rhs of \eqref{dot_az_Re_Im_dimensionless},
+relative to the initial value $a_0$, is $\simeq 1.1\times 10^{-6}$; this is reasonable from a numerical viewpoint.
+
+\newpage
+\subsection{Benchmarking  in 1D}
+\label{Benchmarking}
+
+We compare the numerical result with an analytic calculation of the expected energy gain of an electron 
+passing on axis through a cavity with mode TM$_{110}$. The analytic calculation proceeds as follows. 
+The electric field on axis in the cavity gap is
+%
+\begin{equation}
+E_z(t) = E_0 \cos(\omega_0 t + \phi_0).
+\label{E_gap}
+\end{equation}
+%
+For a particle passing with (almost constant) velocity $c$, we can write
+%
+\begin{equation}
+\omega_0 t = \omega_0 (z/c) = \gamma_0 z.
+\end{equation}
+%
+Then the energy gained by a passing electron is
+%
+\begin{equation}
+\Delta W = \int_{0}^{d}\! dz\, e E_0 \cos(\gamma_0 z+\phi_0) = eE_0d\, \frac{\sin(\gamma_0d/2)}{(\gamma_0d/2)}\cos(\gamma_0d/2+\phi_0)
+\label{Delta_W}
+\end{equation}
+%
+The energy gain for the above example ($E_0 = 50\,$MV/m) becomes $\Delta W = 1.6881\,$MeV; the numerical
+simulation for a sequence of (initial) values $\beta_0=\{0.9, 0.99, 0.999\}$ gives 
+$\Delta W =\{1.6178, 1.6765, 1.6866 \}\,$MeV, which approaches the theoretical value as the velocity of 
+the electron approaches $c$.
+
+The table in Fig.~\ref{Fig_Delta_W} compares the analytical and numerical values of $\Delta W$ at $\beta_0=0.999$. 
+The plot in Fig.~\ref{Fig_Delta_W} compares the data from the table with formula \eqref{Delta_W}. 
+The value of the initial phase $\phi_0$ in formula \eqref{Delta_W} needs to be set to $-\pi/2$ for agreement with 
+the numerical initial condition (the electric field is the derivative of the vector potential, i.e., $d(\cos)/dt = -\sin$).
+%
+
+
+\begin{figure}[h]
+%%%%%%
+\begin{minipage}{3in}
+\hspace{0.5cm}
+\begin{tabular}{c|c|c}
+d[cm] & $\Delta W$[MeV] & $\Delta W$[MeV] \\
+ & (analytical)  & (numerical) \\
+\hline
+2.12 & 0.5832 & 0.5827 \\
+4.24 & 1.5269 & 1.5257 \\ 
+5.30 & 1.6881 & 1.6866 \\
+6.36 & 1.5269 & 1.5251 \\
+7.11 & 1.45   & 1.25   \\
+8.49 & 0.5832 & 0.5810 \\
+10.6 & 0.0    & 0.0    \\
+12.7 & 0.5832 & 0.5884 \\
+14.9 & 1.5269 & 1.5217 \\
+15.9 & 1.6881 & 1.6874 \\
+17.0 & 1.5269 & 1.5180 \\
+19.1 & 0.5832 & 0.5633 \\
+21.2 & 0.0    & 0.0 \\
+\hline
+\end{tabular}
+\end{minipage}
+%%%%%%
+\hspace{-1cm}
+\begin{minipage}{5in}
+\includegraphics[width=5in]{Comparison_dW.pdf}
+\end{minipage}
+%%%%%
+\caption{Comparison of analytically obtained energy gain from Eq.~\eqref{Delta_W} with numerical solution of
+equations \eqref{dot_zj_dimensionless}--\eqref{dot_az_dimensionless}.}
+\label{Fig_Delta_W}
+\end{figure}
+
+
+\newpage
+\section{Hamiltonian formulation}
+\label{Hamiltonian_formulation}
+
+As noted above, the velocity of an electron doesn't change much in the relevant (wide) energy range 
+(10\,MeV--20\,GeV and above). Because of this, round-off errors accumulate in the GeV range of energies. 
+At the same time, the momentum of an electron does change significantly as does its energy.  
+Therefore, by formulating the equations of motion for the electrons in coordinate-momentum form,
+we hope to avoid the numerical round-off errors.
+
+The Hamiltonian of the system of particles and fields can be found from the Lagrangian \eqref{L_dimensionless}
+by performing a Legendre transform on \textit{both} the particles and fields. When considering the 
+field Lagrangian only, the two variables $a_z$ and $a_z^*$ must be considered as independent, as we discussed
+in the derivation of the corresponding field EOM. The generalized momentum (for either particles or fields)
+is defined as
+%
+\begin{equation}
+P = \frac{\partial \LL}{\partial \dot{Q}}
+\label{Generalized_P}
+\end{equation}
+%
+and the energy of the system, i.e., the Hamiltonian, is defined as
+%
+\begin{equation}
+\HH = P\dot{Q} - \LL
+\label{H_definition}
+\end{equation}
+%
+where for many degrees of freedom the first term in \eqref{H_definition} becomes a sum over all
+variables (in our case, particles and fields).
+
+\subsection{Hamiltonian}
+\label{Hamiltonian}
+
+The corresponding field Hamiltonian is found as follows. The generalized momenta become
+%
+\begin{equation}
+P_a = \frac{\partial \LL}{\partial \dot{a}_z} = - \frac{\eta_0 \omega_{_{110}}}{4\pi i}\, a_z^*\, , \qquad
+P_{a^*} = \frac{\partial \LL}{\partial \dot{a}_z} =  \frac{\eta_0 \omega_{_{110}}}{4\pi i}\, a_z\, .
+\label{p_a}
+\end{equation}
+%
+Then applying the definition \eqref{H_definition} we obtain
+\begin{equation}
+\HH_a = \frac{\eta_0\omega_{_{110}}^2}{2\pi}\left( a_z a_z^* \right).
+\label{H_a}
+\end{equation}
+%
+For the particle Hamiltonian, by a similar calculation we have a generalized momentum
+%
+\begin{equation}
+P_j = \frac{\partial \LL}{\partial \dot{z}_j} = w\left(\frac{\dot{z}_j}{\sqrt{1-\dot{z}_j^2}} 
+- 2\xi_0\Re[a_z] \right)
+\label{p_j_definition}
+\end{equation}
+%
+and particle Hamiltonian
+%
+\begin{equation}
+\HH_p = \sum_j\frac{w}{\sqrt{1-\dot{z}_j^2}}
+= \sum_j w \sqrt{1 + \left(\frac{P_j}{w} + 2\xi_0\Re[a_z] \right)^2}
+\label{H_p}
+\end{equation}
+%
+The full Hamiltonian is the sum of \eqref{H_a} and \eqref{H_p}:
+%
+\begin{equation}
+\HH = \sum_j w \sqrt{1 + \left(\frac{P_j}{w} + 2\xi_0\Re[a_z] \right)^2}
++ \frac{\eta_0\omega_{_{110}}^2}{2\pi}\left( a_z a_z^* \right).
+\label{H}
+\end{equation}
+%
+
+\subsection{Hamiltonian EOM}
+\label{Hamiltonian_EOM}
+
+
+The equations of motion are obtained with the help of the Poisson bracket
+defined for any two functions of coordinate and momentum $f(Q,P)$ and $g(Q,P)$ as:
+%
+\begin{equation}
+[f,g] = \frac{\partial f}{\partial Q}\frac{\partial g}{\partial P} 
+- \frac{\partial g}{\partial Q}\frac{\partial g}{\partial P}
+\label{Poisson_bracket}
+\end{equation}
+%
+with EOM
+%
+\begin{equation}
+\frac{d Q}{d t} = [Q,\HH] = \frac{\partial \HH}{\partial P}\, , \qquad 
+\frac{d P}{d t} = [P,\HH] = - \frac{\partial \HH}{\partial Q}\, .
+\label{Hamiltonian_EOM}
+\end{equation}
+%
+
+For our variables \eqref{Poisson_bracket} gives
+%
+\begin{equation}
+[z_i,P_j] = \delta_{ij}\, , \quad [z_i,z_j] = 0\, , \quad [P_i,P_j] = 0\,. % , \quad [a_z, a_z^*] = \frac{1}{i} \, .
+\label{Poisson_pq}
+\end{equation}
+%
+The Poisson bracket for the fields is derived in my paper \cite{evstatiev_relativistic_2005}
+with the corresponding equation for the fields being identical to \eqref{dot_az_dimensionless}.
+The EOM for the electrons become
+%
+\begin{align}
+\dot{z}_j =&\, \frac{(P_j/w) + 2\xi_0\Re[a_z]}{\sqrt{1 + \left(({P_j}/{w}) + 2\xi_0\Re[a_z] \right)^2}}\, ,
+\label{dot_zj_Hamiltonian} \\
+\dot{P}_j =&\, 0\, , \label{dot_pj_Hamiltonian} \\
+\dot{a}_z =& -i\omega_{_{110}}a_z - i\left(\frac{2\pi w\xi_0}{\omega_0\eta_0}\right) \sum_{j=1}^{N_p} \frac{(P_j/w) + 2\xi_0\Re[a_z]}{\sqrt{1 + \left(({P_j}/{w}) + 2\xi_0\Re[a_z] \right)^2}} \, .
+\label{dot_az_Hamiltonian}
+\end{align}
+%
+Notice that the time derivative of the generalized momentum equals zero, \eqref{dot_pj_Hamiltonian},
+because the mode TM$_{110}$ has no $z$-dependence; the same is true for any mode TM$_{\rm XX0}$.
+Another way to say this is that for such modes $z_j$ are cyclic coordinates for the Lagrangian 
+\eqref{L_dimensionless}. Similarly to the previous observation, Eq.~\eqref{dot_az_Hamiltonian}
+can be replaced by two equations for the real and imaginary parts [cf.~\eqref{dot_az_Re_Im_dimensionless}].
+
+
+A numerical implementation of Eqs.~\eqref{dot_zj_Hamiltonian}--\eqref{dot_az_Hamiltonian} has shown
+that indeed the round-off error has been practically eliminated for the range of energies of 
+interest---no noticeable round-off was seen at energies up to 300--400\,GeV.
+
+
+
+\section{Transverse dynamics}
+\label{Transverse_dynamics}
+
+To study the transverse dynamics of a beam, we add the higher order mode TM$_{220}$ to the fundamental
+and expand around $x=a/2$, $y=b/2$:
+%
+\begin{align}
+\psi_{220} &=\, C_{220}\sin\!\left(\frac{2\pi x}{a} \right) \sin\!\left(\frac{2\pi y}{b} \right) %\nonumber \\
+\simeq\, \frac{C_{220}4\pi^2}{ab} xy\,.
+\label{Mode_220}
+\end{align}
+%
+This should describe a ``dipole'' mode with dependence $x^2-y^2$ [obtainable from \eqref{Mode_220} by a substitution
+$x\rightarrow x-y$, $y\rightarrow x+y$]. 
+The Lagrangian for the beam in the presence of the two modes, 
+TM$_{110}$ and TM$_{220}$, becomes
+%
+\begin{align}
+\LL =& -\sum_{j=1}^{N_p} w\,\left\{\sqrt{1-\dot{x}_j^2-\dot{y}_j^2-\dot{z}_j^2}  
++ 2\xi_{2}\dot{x}_j x_j y_j\Re[a_{_{220},x}] + 2\xi_{2}\dot{y}_jx_j y_j\Re[a_{_{220},y}] 
++ 2\xi_0\dot{z}_j \Re[a_{_{110},z}]
+\right\} \nonumber\\
+& + \eta_0 \sum_{l={{110},{220}}}\left\{ - \frac{1}{2\pi}\omega_{l}^2(\mathbf{a}_{l}\cdot \mathbf{a}_{l}^*)
++ \frac{1}{4\pi i} \omega_{l} (\mathbf{a}_{l}\cdot \dot{\mathbf{a}}_{l}^* 
+- \mathbf{a}_{l}^* \cdot \dot{\mathbf{a}}_{l} ) \right\}
+\label{L_transverse}
+\end{align}
+%
+where 
+%
+\begin{equation}
+\xi_2 = \frac{4\pi^2C_{220}}{\gamma_0^{7/2}ab} = \frac{4\pi^2\xi_0}{\gamma_0^2 ab}.
+\end{equation}
+%
+
+I have assumed that the change in the fundamental mode comes entirely from its longitudinal component $a_z$
+and that the change in the ``transverse'' mode TM$_{220}$ comes from its transverse components 
+(\textcolor{red}{is this justified?}); i.e., the significant field components are the following three:
+$a_{_{110}\,z}$, $a_{_{220}\, x}$, $a_{_{220}\, y}$.
+
+The Hamiltonian for this system of beam and two modes is:
+%
+\begin{align}
+\HH &=\, \sum_{j=1}^{N_p}w\sqrt{1+\left(\frac{P_{jx}}{w}+2\xi_2x_jy_j\Re[a_{_{220\, x}}] \right)^2 
++\left(\frac{P_{jy}}{w}+2\xi_2x_jy_j\Re[a_{_{220\, y}}] \right)^2 
++ \left(\frac{P_{jz}}{w}+2\xi_0\Re[a_{_{110\, z}}] \right)^2  } \nonumber \\
+&\phantom{=\,} 
++ \frac{\eta_0\omega_{_{220}}^2}{2\pi}\left(a_{_{220\, x}}a_{_{220\, x}}^* + a_{_{220\, y}}a_{_{220\, y}}^* \right)
++ \frac{\eta_0\omega_{_{110}}^2}{2\pi}\left(a_{_{110\, z}}a_{_{110\, z}}^* \right) 
+\label{Hamiltonian_two_mode} \\
+&\phantom{=\,}  \equiv w\sum_j\HH_{pj} + \HH_a
+\label{Hamiltonian_two_mode_abbrev}
+\end{align}
+%
+where the definitions of $\HH_{pj}$ and $\HH_a$ are obvious.
+
+The equations of motion are obtained with the Poisson brackets \eqref{Poisson_pq}
+(the field equations are easiest obtained from the Lagrangian \eqref{L_transverse}):
+%
+\begin{align}
+\dot{x}_j &=\, \frac{(P_{jx}/w)+2\xi_2x_jy_j\Re[a_{_{220\, x}}]}{\HH_{pj}},\quad
+\dot{y}_j =\,  \frac{(P_{jy}/w)+2\xi_2x_jy_j\Re[a_{_{220\, y}}]}{\HH_{pj}}, \quad
+\dot{z}_j =\,  \frac{(P_{jz}/w)+2\xi_0 \Re[a_{_{110\, z}}]}{\HH_{pj}}\, ,
+\label{dot_xyz_two_mode} \\
+\dot{P}_{jx} &=\, -\frac{2w\xi_2y_j}{\HH_{pj}}
+\left\{ 
+\Re[a_{_{220\,x}}]\left( (P_{jx}/w)+2\xi_2x_jy_j\Re[a_{_{220\,x}}]\right)
++ \Re[a_{_{220\,y}}]\left((P_{jy}/w)+2\xi_2x_jy_j\Re[a_{_{220\,y}}]\right)
+\right\}, \label{dot_Px_two_mode}\\
+\dot{P}_{jy} &=\, -\frac{2w\xi_2x_j}{\HH_{pj}}
+\left\{ 
+\Re[a_{_{220\,x}}]\left( (P_{jx}/w)+2\xi_2x_jy_j\Re[a_{_{220\,x}}]\right)
++ \Re[a_{_{220\,y}}]\left((P_{jy}/w)+2\xi_2x_jy_j\Re[a_{_{220\,y}}]\right)
+\right\}, \label{dot_Py_two_mode}\\
+\dot{P}_{jz} &=\, 0 , \label{dot_Pz_two_mode}\\
+\dot{a}_{_{110\,z}} &=\, -i\omega_{_{110}}a_{_{110\,z}}
+- i\left(\frac{2\pi w\xi_0}{\omega_{_{110}}\eta_0} \right)
+\sum_{j=1}^{N_p}\frac{(P_{jz}/w)+2\xi_0\Re[a_{_{110\,z}}]}{\HH_{pj}} ,
+\label{dot_az} \\
+\dot{a}_{_{220\,x}} &=\, -i\omega_{_{220}}a_{_{220\,x}}
+- i\left(\frac{2\pi w\xi_2}{\omega_{_{220}}\eta_0} \right)
+\sum_{j=1}^{N_p}\frac{(P_{jx}/w)+2\xi_2x_jy_j\Re[a_{_{220\,x}}]}{\HH_{pj}} ,
+\label{dot_ax} \\
+\dot{a}_{_{220\,y}} &=\, -i\omega_{_{220}}a_{_{220\,y}}
+- i\left(\frac{2\pi w\xi_2}{\omega_{_{220}}\eta_0} \right)
+\sum_{j=1}^{N_p}\frac{(P_{jy}/w)+2\xi_2x_jy_j\Re[a_{_{220\,y}}]}{\HH_{pj}} .
+\label{dot_ay}
+\end{align}
+
+
+
+% \vspace{1cm}
+
+% \textcolor{red}{To consider:} 
+% i) \textcolor{blue}{Different normalization for the eigenfunctions $\psi_l$.}
+
+
+
+
+
+
+
+
+
+
+\bibliographystyle{unsrt}
+\bibliography{Bibliography_BeamEnergyRecoveryModel}
+
+\end{document}
