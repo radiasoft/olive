@@ -1,1 +1,7 @@
 pykern
+ipython
+jupyter
+mpi4py
+numpy
+scipy
+pytest

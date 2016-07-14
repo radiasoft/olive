@@ -24,7 +24,7 @@ class ptcl:
     
     def __init__(self, pdict):
         
-        self.num = pdict['num_particles']
+        self.num = pdict['num_p']
         self.dim = pdict['dim']
         self.mass = pdict['mass']
         self.pos = np.zeros((self.num, self.dim))
@@ -93,10 +93,10 @@ class ptcl:
         """
         
         ptau_avg = np.mean(self.mom[:,2])
-        
-        ke_tau_avg = ptau_avg*ptau_avg/(2*self.mass)
-        
-        gamma_tau_avg = (ke_tau_avg + self.mass*c**2)/(self.mass*c**2)
+        energy_tau_avg = np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)
+        gamma_tau_avg = energy_tau_avg/(self.mass*c**2)
+
+        #ke_tau_avg = ptau_avg*ptau_avg/(2*self.mass)
         
         beta_z_avg = np.sqrt(1-1./gamma_tau_avg**2)
         
