@@ -33,6 +33,7 @@ class readSDDS:
 
         self.param_key = 'i'  # Include row count with parameters
         self.column_key = ''
+        self.pointer = 0
 
         self.param_size = 0
         self.column_size = 0
@@ -51,6 +52,8 @@ class readSDDS:
                 break
             else:
                 self.header.append(new_line)
+
+        self.pointer = self.openf.tell()
 
         return self.header
 
@@ -122,8 +125,13 @@ class readSDDS:
         except AttributeError:
             self._read_header()
             self._parse_header()
+            if self.verbose:
+                print "Header data read and parsed."
 
         parameters = {}
+
+        # Reset pointer back to beginning of binary data
+        self.openf.seek(self.pointer)
 
         param_data = unpack(self.param_key, self.openf.read(self.param_size))
 
@@ -157,7 +165,7 @@ class readSDDS:
 
 
 if __name__ == '__main__':
-    test = readSDDS('test.bun')
+    test = readSDDS('../../tests/interface/test.bun')
     tpar = test.read_params()
     tcol = test.read_columns()
     print tcol[0:2, :]
