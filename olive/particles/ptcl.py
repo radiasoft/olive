@@ -20,7 +20,7 @@
 import numpy as np
 from scipy.constants import e, m_e, c
 
-class ptcl:
+class Ptcl:
     
     def __init__(self, pdict):
         
@@ -81,8 +81,21 @@ class ptcl:
             gamma (ndarray): relativistic gamma - unitless
         
         """
-        
-        return (self.compute_energy() + self.mass*c**2)/(self.mass*c**2)
+
+        ptau_avg = np.mean(np.einsum('ij,ij->i',self.mom,self.mom))
+        return np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)
+
+    def compute_gamma_z(self):
+        """
+        Compute the relativistic gamma for motion in the z/tau axis for each particle
+
+        Returns:
+            gamma (ndarray): relativistic gamma - unitless
+
+        """
+
+        ptau_avg = np.mean(self.mom[:,2])
+        return np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)
         
         
     def compute_beta_z(self):
@@ -92,12 +105,12 @@ class ptcl:
         
         """
         
-        ptau_avg = np.mean(self.mom[:,2])
-        energy_tau_avg = np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)
-        gamma_tau_avg = energy_tau_avg/(self.mass*c**2)
+        #ptau_avg = np.mean(self.mom[:,2])
+        #energy_tau_avg = np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)
+        #gamma_tau_avg = energy_tau_avg/(self.mass*c**2)
 
+        gamma_tau_avg = self.compute_gamma_z()
         #ke_tau_avg = ptau_avg*ptau_avg/(2*self.mass)
-        
         beta_z_avg = np.sqrt(1-1./gamma_tau_avg**2)
         
         return beta_z_avg
