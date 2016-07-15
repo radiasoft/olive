@@ -95,7 +95,7 @@ class Ptcl:
         """
 
         ptau_avg = np.mean(self.mom[:,2])
-        return np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)
+        return np.sqrt((ptau_avg*c)**2 + (self.mass*c**2)**2)/(self.mass*c**2)
         
         
     def compute_beta_z(self):
