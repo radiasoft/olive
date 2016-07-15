@@ -22,8 +22,10 @@ class readSDDS:
 
         Parameters
         ----------
-        input_file: Name of binary SDDS file to read.
-        verbose: Print additional data about detailing intermediate read in process.
+        input_file: str
+            Name of binary SDDS file to read.
+        verbose: Boolean
+            Print additional data about detailing intermediate read in process.
         """
 
         self.openf = open(input_file, 'r')
@@ -117,7 +119,8 @@ class readSDDS:
 
         Returns
         -------
-        parameters: Dictionary object with parameters names and values.
+        parameters: dictionary
+            Dictionary object with parameters names and values.
         """
 
         try:
@@ -148,7 +151,8 @@ class readSDDS:
 
         Returns
         -------
-        columns: NumPy array with column data.
+        columns: ndarray
+            NumPy array with column data.
         """
 
         try:
