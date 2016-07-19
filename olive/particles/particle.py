@@ -20,7 +20,7 @@
 import numpy as np
 from scipy.constants import e, m_e, c
 
-class Ptcl:
+class Particle(object):
     
     def __init__(self, pdict):
         
@@ -102,6 +102,9 @@ class Ptcl:
         """
         Compute the beta-z value for the bunch. We assume a single velocity by averaging over
         all values of p_tau in the bunch.
+
+        Returns:
+            beta_z(ndarray): relativistic beta along the longitudinal axis - unitless
         
         """
         
@@ -137,8 +140,8 @@ class Ptcl:
                 break
 
         if not added_ptcl:
-            np.append(np.zeros(self.dimension), self.pos)
-            np.append(np.zeros(self.dimension), self.mom)
+            np.append(np.zeros(self.dim), self.pos)
+            np.append(np.zeros(self.dim), self.mom)
             self.pos[-1,:] = position[:]
             self.mom[-1,:] = momentum[:]
             #self.weights[idx] = weight
