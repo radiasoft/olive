@@ -36,6 +36,13 @@ def _assert_array(expect, actual):
         _assert(expect, actual)
 
 
+def symmetric_array(num, m):
+    """
+    Warps np.linspace to return a symmetric array ranging from -m : m with num entries
+    """
+
+    return np.linspace(-1.*m,1.*m,num)
+
 #@pytest.fixture
 def bunch():
     tb = particle.Particle(_PD)
@@ -43,14 +50,14 @@ def bunch():
     #particles have zero off-axis amplitude
     x = np.zeros(_PD['num_p'])
     y = x.copy()
-    z = np.linspace(-1.*_PD['z_range'],1.*_PD['z_range'],_PD['num_p'])
+    z = symmetric_array(_PD['num_p'],_PD['z_range'])
     positions = np.asarray(zip(x,y,z))
 
     #particles have zero transverse momenta
     px = np.zeros(_PD['num_p'])
     py = px.copy()
     #slower particles are placed ahead of faster particles
-    pz = (1.-np.linspace(-1.*_PD['pz_range'],1.*_PD['pz_range'],_PD['num_p']))*m_e*c
+    pz = (1.-symmetric_array(_PD['num_p'],_PD['z_range']))*m_e*c
     momenta = np.asarray(zip(px,py,pz))
 
     tb.add_bunch(positions,momenta)
