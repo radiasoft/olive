@@ -36,7 +36,7 @@ def _assert_array(expect, actual):
         _assert(expect, actual)
 
 
-@pytest.fixture
+#@pytest.fixture
 def bunch():
     tb = particle.Particle(_PD)
 
@@ -49,18 +49,23 @@ def bunch():
     #particles have zero transverse momenta
     px = np.zeros(_PD['num_p'])
     py = px.copy()
-    pz = (1.-np.linspace(-1.*_PD['pz_range'],1.*_PD['pz_range'],_PD['num_p']))*m_e*c #slower particles are placed ahead of faster particles
+    #slower particles are placed ahead of faster particles
+    pz = (1.-np.linspace(-1.*_PD['pz_range'],1.*_PD['pz_range'],_PD['num_p']))*m_e*c
     momenta = np.asarray(zip(px,py,pz))
 
     tb.add_bunch(positions,momenta)
 
     return tb
 
+#mybunch = bunch()
 
-class TestBunch(object):
+#REPLACE CLASS HERE -> Just do a list of functions
+#class TestBunch(object):
 
-    def test_gamma(self,bunch):
-        _assert(_PD['expected_gamma'], bunch.compute_gamma_z())
+def test_gamma():
+    mybunch = bunch()
+    _assert(_PD['expected_gamma'], mybunch.compute_gamma_z())
 
-    def test_beta(self, bunch):
-        _assert(_PD['expected_beta'], bunch.compute_beta_z())
+def test_beta():
+    mybunch = bunch()
+    _assert(_PD['expected_beta'], mybunch.compute_beta_z())
