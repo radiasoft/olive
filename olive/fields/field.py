@@ -1,8 +1,17 @@
+# Field class (relativistic) for OLIVE
+#
+# Class is initialized with an array of modes and amplitudes as well as corresponding metadata
+#
+#
+# Units
+#   -Assume CGS units for now
+#
+
 
 import numpy as np
 
 
-class field_data:
+class Field:
 
     def __init__(self):
         self.modes = []
