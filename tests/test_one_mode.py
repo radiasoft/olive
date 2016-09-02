@@ -24,7 +24,8 @@ from eigenmodes import f_mode, OMEGA
 
 # Set the default mass and charge for an electron
 m = m_e
-q = -e
+q = -100.*e
+c = c
 
 
 class BeamLoader(object):
@@ -74,8 +75,8 @@ class BeamLoader(object):
         #Compute gamma and beta-gamma - note that beta = betagamma/gamma will be held constant
         p_array = np.einsum('ij,ij->i', p0, p0)
 
-        self.gamma = np.sqrt((p_array*c)**2 + (m*c**2)**2)
-        self.beta_gamma = p_array/(m*c)
+        self.gamma = np.sqrt((p_array)**2 + (m*c**2)**2) #an extra factor of c already in p
+        self.beta_gamma = p_array/(m*c*c)
 
 
         # Field quantities
@@ -127,9 +128,20 @@ class BeamLoader(object):
 
         '''
 
-        self.x = self.x + step* self.h * self.px / (np.sqrt(m**2*c**2*(1+self.beta_gamma)))
-        self.y = self.y + step* self.h * self.py / (np.sqrt(m**2*c**2*(1+self.beta_gamma)))
-        self.z = self.z + step* self.h * self.pz / (np.sqrt(m**2*c**2*(1+self.beta_gamma)))
+        #p_array = np.einsum('ij,ij->i', np.asarray(self.px,self.py,self.pz), p0)
+
+        rest_mass_sqrd = m**2*c**4
+        pdotp = self.px**2+self.py**2+self.pz**2
+        denom = np.sqrt(pdotp + rest_mass_sqrd)
+
+        self.x = self.x + step* self.h * self.px / denom
+        self.y = self.y + step* self.h * self.py / denom
+        self.z = self.z + step* self.h * self.pz / denom
+
+
+        #self.x = self.x + step* self.h * self.px / (np.sqrt(m**2*c**2*(1+self.beta_gamma)))
+        #self.y = self.y + step* self.h * self.py / (np.sqrt(m**2*c**2*(1+self.beta_gamma)))
+        #self.z = self.z + step* self.h * self.pz / (np.sqrt(m**2*c**2*(1+self.beta_gamma)))
 
         self.x_history.append(self.x)
         self.y_history.append(self.y)
@@ -155,6 +167,8 @@ class BeamLoader(object):
         self.py_history.append(self.py)
         self.pz_history.append(self.pz)
 
+        print f_dz
+
     def rotate_fields(self, step=1.):
         '''Update field phases self consistently with the time step.
 
@@ -178,17 +192,17 @@ class BeamLoader(object):
         self.P_history.append(self.P)
 
     def update_Ps(self):
-        '''Update mode amplitudes Pk -> Pk+1 given qk+1/2'''
+        '''Couple field momentum with particle positions mode amplitudes Pk -> Pk+1 given qk+1/2'''
 
         # Compute spatial eigenmodes and derivatives for each particle
         fz, f_dx, f_dy, f_dz = f_mode(self.x, self.y, self.z)
 
         # Assume only one mode for now!
-        self.P = self.P + self.h * q * (self.beta_gamma / self.gamma) * np.sum(fz)
+        self.P = self.P + self.h * q * (self.beta_gamma/self.gamma)* np.sum(fz)
+
+        #print np.sum(fz)
 
         self.P_history.append(self.P)
-
-
 
 
     def step(self, N=1):
@@ -247,9 +261,9 @@ class BeamLoader(object):
         fig = plt.figure(figsize=(12,8))
 
         ax = fig.gca()
-        ax.plot(np.asarray(self.tau_history)/c,self.z_history, label = 'z')
-        ax.plot(np.asarray(self.tau_history)/c,self.x_history, label = 'x')
-        ax.plot(np.asarray(self.tau_history)/c,self.y_history, label = 'y')
+        ax.plot(np.asarray(self.tau_history)/c,np.asarray(self.z_history)[:,0], label = 'z')
+        ax.plot(np.asarray(self.tau_history)/c,np.asarray(self.x_history)[:,0], label = 'x')
+        #ax.plot(np.asarray(self.tau_history)/c,self.y_history[:,0], label = 'y')
 
         ax.set_xlabel('Time')
         ax.set_ylabel('Coordinates')
@@ -263,9 +277,11 @@ class BeamLoader(object):
         fig = plt.figure(figsize=(12,8))
 
         ax = fig.gca()
-        ax.plot(np.asarray(self.tau_history)/c,self.pz_history, label = 'z')
-        ax.plot(np.asarray(self.tau_history)/c,self.px_history, label = 'x')
-        ax.plot(np.asarray(self.tau_history)/c,self.py_history, label = 'y')
+        ax.plot(np.asarray(self.tau_history)/c,np.asarray(self.pz_history)[:,0]/(m_e*c**2), label = 'z')
+        #ax.plot(np.asarray(self.tau_history)/c,np.asarray(self.px_history)[:,0]/(m_e*c**2), label = 'x')
+        #ax.plot(np.asarray(self.tau_history)/c,self.py_history[:,0], label = 'y')
+
+        ax.set_ylim([999.5,1000.5])
 
         ax.set_xlabel('Time')
         ax.set_ylabel('Momenta')
@@ -319,24 +335,54 @@ if __name__ == '__main__':
 
     #starting coordinates
     q1 = [a / 2., b / 2., 0.]
-    q2 = [a / 2.5, b / 2.5, 0.]
-    q0 = np.asarray([q1, q2])
+    #q2 = [a / 2.5, b / 2.5, 0.]
+    q0 = np.asarray([q1, q1])
+    #q0 =np.asarray([a / 2., b / 2.,0.])
 
     gamma = 1000  # 500 MeV electrons
-    # Assume just z momentum here
-    p1 = gamma * m_e * c*np.asarray([0., 0.01, 0.99])
-    p2 = gamma * m_e * c*np.asarray([0., 0.01, 0.99])
-    p0 = np.asarray([p1, p2])
+
+    # To properly normalize, define angles of trajectories
+    frac_z = 0.95  # fraction of total energy in z-plane
+    frac_y_x = 0.5  # fraction of remaining energy in y-plane
+    angle = np.arccos(frac_y_x)  # corresponding angle
+
+    left = np.sqrt(1 - frac_z ** 2)
+    frac_y = np.cos(angle) * left
+    frac_x = np.sin(angle) * left
+
+    #unitless = [frac_x, frac_y, frac_z]
+    unitless = [0.,0.,1.]
+
+    frac_z = 0.9  # fraction of total energy in z-plane
+    frac_y_x = 0.5  # fraction of remaining energy in y-plane
+    angle = np.arccos(frac_y_x)  # corresponding angle
+
+    left = np.sqrt(1 - frac_z ** 2)
+    frac_y = np.cos(angle) * left
+    frac_x = np.sin(angle) * left
+
+    unitless2 = [frac_x, frac_y, frac_z]
+
+    # Our canonical momentum is actually an energy (e.g. p*c)
+    #p1 = gamma * m_e * c * np.asarray(unitless) * c
+    p2 = gamma * m_e * c * np.asarray(unitless2) * c
+    p0 = np.asarray([p2, p2])
+    #p0 = np.asarray(p1)
+
+    # Our canonical momentum is actually an energy (e.g. p*c)
+    #p1 = gamma * m_e * c*np.asarray([0., 0.01, 0.99])*c
+    #p2 = gamma * m_e * c*np.asarray([0., 0.01, 0.99])*c
+    #p0 = np.asarray([p1, p2])
 
     #Mode values - only 1 mode here
-    Q0 = [2.e3] #normalize the amplitude here to 1...?
+    Q0 = [1.e1] #normalize the amplitude here to 1...?
     P0 = [0.] #this is essentially set by the phase (e.g. t = 0) -> let's assume we're on phase
-    W0 = [OMEGA] #imported from eigenmodes.py
+    W0 = [OMEGA/c] #imported from eigenmodes.py - NOTE THAT WE ARE DIVIDING OUT A FACTOR OF C HERE DUE TO TIMESTEP
 
 
     #Define max time via fundamental frequency - it will be one oscillation of the fields
     num_osc = 1.
-    maxT = num_osc*(2*np.pi)/W0[0]
+    maxT = num_osc*(2*np.pi)/(W0[0]*c)
     maxTau = c*maxT
 
     # Integrate the equations of motion with a timestep dt
@@ -352,8 +398,12 @@ if __name__ == '__main__':
     bload.plot_field_amplitudes()
     #print len(bload.tau_history)
 
+    #print bload.px_history
     #new_Ps = np.asarray([P[0] for P in bload.P_history])
     #leg_Ps = np.concatenate(([new_Ps[0]],new_Ps[::2]))
     #print len(leg_Ps)
+
+
+    print np.asarray(bload.pz_history)[::10,0]
 
     #print len([P[0] for P in bload.P_history])
