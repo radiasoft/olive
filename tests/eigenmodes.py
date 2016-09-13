@@ -74,34 +74,56 @@ A_z = lambda m, n, p, x, y, z: C_z(m, n, p) * np.sin(m * np.pi * x / a) * np.sin
 #def compute_integrals(mode_list,x,y,z):
 #    '''Return
 
-def compute_wavenumbers(k):
 
-    return k
+def compute_wavenumbers(modes):
+    '''Returns vectors of wavenumbers given vectors of mode numbers for each dimension
 
-def A_x(x,y,z):
-    '''Return an array of A values corresponding to each mode evaluated at an vector of positions'''
+    Arguments:
+        modes (ndArray): 3xL array of mode numbers (m,n,p) for L modes
 
-    return A_x(x,y,z)
+    Returns:
+]       ks (ndArray): 3xL array of mode wavenumbers (kx, ky, kz) for L modes
 
-def A_y(x,y,z):
-    '''Return an array of A values corresponding to each mode evaluated at an vector of positions'''
-
-    return A_y(x,y,z)
-
-def A_z(x,y,z):
-    '''Return an array of A values corresponding to each mode evaluated at an vector of positions'''
-
-    return A_z(x,y,z)
-
-
-def dx_int_A_z(m, n, p, x, y, z):
     '''
-    Returns an LxN array of x derivative of int_A_z for L modes evaluated at N particle positions.
+    ks = modes
+    ks[:,0] = modes[:,0]*np.pi/a
+    ks[:,1] = modes[:,1]*np.pi/b
+    ks[:,2] = modes[:,2]*np.pi/d
+
+    return ks
+
+
+def old_compute_wavenumbers(m,n,p):
+    '''Returns vectors of wavenumbers given vectors of mode numbers for each dimension
 
     Arguments:
         m (ndArray): vector of mode numbers m (length L)
         n (ndArray): vector of mode numbers n (length L)
         p (ndArray): vector of mode numbers p (length L)
+
+
+    Returns:
+        kx (ndArray): vector of mode wavenumbers kx (length L)
+        ky (ndArray): vector of mode wavenumbers ky (length L)
+        kz (ndArray): vector of mode wavenumbers kz (length L)
+
+    '''
+
+    kx = m*np.pi/a
+    ky = n*np.pi/b
+    kz = p*np.pi/d
+
+    return kx,ky,kz
+
+
+def dx_int_A_z(kx, ky, kz, x, y, z):
+    '''
+    Returns an LxN array of x derivative of int_A_z for L modes evaluated at N particle positions.
+
+    Arguments:
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -110,26 +132,26 @@ def dx_int_A_z(m, n, p, x, y, z):
         dx_int_A_z (ndArray): An LxN array of values
     '''
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
 
-    cos_product = np.cos(mx * np.pi / a) * np.sin(ny * np.pi / b)
+    cos_product = np.cos(kxx) * np.sin(kyy)
 
-    m_cos = np.einsum('i,ij->ij', m, cos_product) * (np.pi / a)
+    m_cos = np.einsum('i,ij->ij', kx, cos_product)
 
     z_m_cos = np.einsum('j,ij->ij', z, m_cos)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), z_m_cos)
 
 
-def dy_int_A_z(m, n, p, x, y, z):
+def dy_int_A_z(kx, ky, kz, x, y, z):
     '''
     Returns an LxN array of y derivative of int_A_z for L modes evaluated at N particle positions.
 
     Arguments:
-        m (ndArray): vector of mode numbers m (length L)
-        n (ndArray): vector of mode numbers n (length L)
-        p (ndArray): vector of mode numbers p (length L)
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -138,26 +160,26 @@ def dy_int_A_z(m, n, p, x, y, z):
         dy_int_A_z (ndArray): An LxN array of values
     '''
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
 
-    cos_product = np.sin(mx * np.pi / a) * np.cos(ny * np.pi / b)
+    cos_product = np.sin(kxx) * np.cos(kyy)
 
-    m_cos = np.einsum('i,ij->ij', m, cos_product) * (np.pi / b)
+    m_cos = np.einsum('i,ij->ij', ky, cos_product)
 
     z_m_cos = np.einsum('j,ij->ij', z, m_cos)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), z_m_cos)
 
 
-def dz_int_A_z(m, n, p, x, y, z):
+def dz_int_A_z(kx, ky, kz, x, y, z):
     '''
     Returns an LxN array of z derivative of int_A_z for L modes evaluated at N particle positions.
 
     Arguments:
-        m (ndArray): vector of mode numbers m (length L)
-        n (ndArray): vector of mode numbers n (length L)
-        p (ndArray): vector of mode numbers p (length L)
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -166,10 +188,10 @@ def dz_int_A_z(m, n, p, x, y, z):
         dz_int_A_z (ndArray): An LxN array of values
     '''
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
 
-    cos_product = np.sin(mx * np.pi / a) * np.sin(ny * np.pi / b)
+    cos_product = np.sin(kxx) * np.sin(kyy)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), cos_product)
 
@@ -191,14 +213,14 @@ def deriv_int_Ay(m,n,p,x,y,z):
     return np.zeros((L, N))
 
 
-def calc_int_A_z(m, n, p, x, y, z):
+def calc_int_A_z(kx, ky, kz, x, y, z):
     '''
     Returns an LxN array of int_A_z for L modes evaluated at N particle positions.
 
     Arguments:
-        m (ndArray): vector of mode numbers m (length L)
-        n (ndArray): vector of mode numbers n (length L)
-        p (ndArray): vector of mode numbers p (length L)
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -207,24 +229,24 @@ def calc_int_A_z(m, n, p, x, y, z):
         int_A_z (ndArray): An LxN array of values
     '''
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
 
-    sin_product = np.sin(mx * np.pi / a) * np.sin(ny * np.pi / b)
+    sin_product = np.sin(kxx) * np.sin(kyy)
 
     z_sin = np.einsum('j,ij->ij', z, sin_product)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), z_sin)
 
 
-def calc_A_x(m, n, p, x, y, z):
+def calc_A_x(kx, ky, kz, x, y, z):
     '''
     Returns an LxN array of A_x for L modes evaluated at N particle positions.
 
     Arguments:
-        m (ndArray): vector of mode numbers m (length L)
-        n (ndArray): vector of mode numbers n (length L)
-        p (ndArray): vector of mode numbers p (length L)
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -232,24 +254,23 @@ def calc_A_x(m, n, p, x, y, z):
     Returns:
         A_x (ndArray): An LxN array of values
     '''
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
+    kzz = np.einsum('i,j->ij', kz, z)
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
-    pz = np.einsum('i,j->ij', p, z)
-
-    product = np.cos(mx * np.pi / a) * np.sin(ny * np.pi / b) * np.sin(pz * np.pi / d)
+    product = np.cos(kxx) * np.sin(kyy) * np.sin(kzz)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), product)
 
 
-def calc_A_y(m, n, p, x, y, z):
+def calc_A_y(kx, ky, kz, x, y, z):
     '''
     Returns an LxN array of A_y for L modes evaluated at N particle positions.
 
     Arguments:
-        m (ndArray): vector of mode numbers m (length L)
-        n (ndArray): vector of mode numbers n (length L)
-        p (ndArray): vector of mode numbers p (length L)
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -258,23 +279,23 @@ def calc_A_y(m, n, p, x, y, z):
         A_y (ndArray): An LxN array of values
     '''
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
-    pz = np.einsum('i,j->ij', p, z)
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
+    kzz = np.einsum('i,j->ij', kz, z)
 
-    product = np.sin(mx * np.pi / a) * np.cos(ny * np.pi / b) * np.sin(pz * np.pi / d)
+    product = np.sin(kxx) * np.cos(kyy) * np.sin(kzz)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), product)
 
 
-def calc_A_z(m, n, p, x, y, z):
+def calc_A_z(kx, ky, kz, x, y, z):
     '''
     Returns an LxN array of A_x for L modes evaluated at N particle positions.
 
     Arguments:
-        m (ndArray): vector of mode numbers m (length L)
-        n (ndArray): vector of mode numbers n (length L)
-        p (ndArray): vector of mode numbers p (length L)
+        kx (ndArray): vector of wavenumbers kx (length L)
+        ky (ndArray): vector of wavenumbers ky (length L)
+        kz (ndArray): vector of wavenumbers kz (length L)
         x (ndArray): vector of particle coordinates x (length N)
         y (ndArray): vector of particle coordinates y (length N)
         z (ndArray): vector of particle coordinates z (length N)
@@ -283,10 +304,10 @@ def calc_A_z(m, n, p, x, y, z):
         A_z (ndArray): An LxN array of values
     '''
 
-    mx = np.einsum('i,j->ij', m, x)
-    ny = np.einsum('i,j->ij', n, y)
-    pz = np.einsum('i,j->ij', p, z)
+    kxx = np.einsum('i,j->ij', kx, x)
+    kyy = np.einsum('i,j->ij', ky, y)
+    kzz = np.einsum('i,j->ij', kz, z)
 
-    product = np.sin(mx * np.pi / a) * np.sin(ny * np.pi / b) * np.cos(pz * np.pi / d)
+    product = np.sin(kxx) * np.sin(kyy) * np.cos(kzz)
 
     return np.einsum('i,ij->ij', C_z(m, n, p), product)
