@@ -22,13 +22,17 @@ Nathan Cook
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.constants import e, m_e, c
+#from scipy.constants import e, m_e
+
+from scipy.constants import c as c_mks
+
+c = c_mks*1.e2
 
 
 # cavity dimensions in meters
-a = 0.1 #x plane
-b = 0.1 #y plane
-d = 0.2 #z plane
+a = 50. #*1e-2 #x plane
+b = 40. #1e-2 #y plane
+d = 10. #1e-2 #z plane
 
 # Mode numbers
 m = 1  # x mode
@@ -45,10 +49,15 @@ OMEGA = omega_l(m,n,p)
 # Define mode spatial eigenfunctions
 
 #Normalization constants first
-C_base = 2 / np.sqrt((a * b * d))
-C_x = lambda m, n, p: C_base
-C_y = lambda m, n, p: C_base * (m / n) * (b / a)  #differs by a ratio of wavenumbers (kx/ky) such that del*E = 0.
-C_z = lambda m, n, p: C_base
+#C_base = 2 / np.sqrt((a * b * d))
+#C_x = lambda m, n, p: C_base *m/m
+#C_y = lambda m, n, p: C_base * (m / n) * (b / a)  #differs by a ratio of wavenumbers (kx/ky) such that del*E = 0.
+#C_z = lambda m, n, p: C_base *m/m
+
+C_base = 1.
+C_x = lambda m, n, p: 1.* m/m
+C_y = lambda m, n, p: 1. * (m / m)  #differs by a ratio of wavenumbers (kx/ky) such that del*E = 0.
+C_z = lambda m, n, p: 1. *m/m
 
 #Spatial eigenmodes
 A_x = lambda m, n, p, x, y, z: C_x(m, n, p) * np.cos(m * np.pi * x / a) * np.sin(n * np.pi * y / b) * np.sin(
@@ -70,11 +79,6 @@ A_z = lambda m, n, p, x, y, z: C_z(m, n, p) * np.sin(m * np.pi * x / a) * np.sin
 #ddz_int_A_z = lambda m,n,p,x,y,z: C_z(m,n,p)*np.sin(m*np.pi*x/a)*np.sin(n*np.pi*y/b)
 
 
-
-#def compute_integrals(mode_list,x,y,z):
-#    '''Return
-
-
 def compute_wavenumbers(modes):
     '''Returns vectors of wavenumbers given vectors of mode numbers for each dimension
 
@@ -85,10 +89,11 @@ def compute_wavenumbers(modes):
 ]       ks (ndArray): 3xL array of mode wavenumbers (kx, ky, kz) for L modes
 
     '''
-    ks = modes
-    ks[:,0] = modes[:,0]*np.pi/a
-    ks[:,1] = modes[:,1]*np.pi/b
-    ks[:,2] = modes[:,2]*np.pi/d
+
+    ks = np.zeros(modes.shape)
+    ks[:, 0] = 1.0 * modes[:, 0] * np.pi / a
+    ks[:, 1] = 1.0 * modes[:, 1] * np.pi / b
+    ks[:, 2] = 1.0 * modes[:, 2] * np.pi / d
 
     return ks
 
@@ -141,7 +146,7 @@ def dx_int_A_z(kx, ky, kz, x, y, z):
 
     z_m_cos = np.einsum('j,ij->ij', z, m_cos)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), z_m_cos)
+    return np.einsum('i,ij->ij', C_z(kx,ky,kz), z_m_cos)
 
 
 def dy_int_A_z(kx, ky, kz, x, y, z):
@@ -169,7 +174,7 @@ def dy_int_A_z(kx, ky, kz, x, y, z):
 
     z_m_cos = np.einsum('j,ij->ij', z, m_cos)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), z_m_cos)
+    return np.einsum('i,ij->ij', C_z(kx,ky,kz), z_m_cos)
 
 
 def dz_int_A_z(kx, ky, kz, x, y, z):
@@ -193,7 +198,7 @@ def dz_int_A_z(kx, ky, kz, x, y, z):
 
     cos_product = np.sin(kxx) * np.sin(kyy)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), cos_product)
+    return np.einsum('i,ij->ij', C_z(kx,ky,kz), cos_product)
 
 
 def deriv_int_Ax(m,n,p,x,y,z):
@@ -236,7 +241,7 @@ def calc_int_A_z(kx, ky, kz, x, y, z):
 
     z_sin = np.einsum('j,ij->ij', z, sin_product)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), z_sin)
+    return np.einsum('i,ij->ij', C_z(kx, ky, kz), z_sin)
 
 
 def calc_A_x(kx, ky, kz, x, y, z):
@@ -260,7 +265,7 @@ def calc_A_x(kx, ky, kz, x, y, z):
 
     product = np.cos(kxx) * np.sin(kyy) * np.sin(kzz)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), product)
+    return np.einsum('i,ij->ij', C_z(kx,ky,kz), product)
 
 
 def calc_A_y(kx, ky, kz, x, y, z):
@@ -285,7 +290,7 @@ def calc_A_y(kx, ky, kz, x, y, z):
 
     product = np.sin(kxx) * np.cos(kyy) * np.sin(kzz)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), product)
+    return np.einsum('i,ij->ij', C_z(kx,ky,kz), product)
 
 
 def calc_A_z(kx, ky, kz, x, y, z):
@@ -310,4 +315,4 @@ def calc_A_z(kx, ky, kz, x, y, z):
 
     product = np.sin(kxx) * np.sin(kyy) * np.cos(kzz)
 
-    return np.einsum('i,ij->ij', C_z(m, n, p), product)
+    return np.einsum('i,ij->ij', C_z(kx,ky,kz), product)
