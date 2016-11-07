@@ -122,9 +122,9 @@ class BeamLoader(object):
         self.mass = ws * m
         self.qs = ws * q
 
-        print ws
-        print self.mass
-        print self.qs
+        # print ws
+        # print self.mass
+        # print self.qs
 
         # Momentum quantities - need to be weighted
         self.px = ws * p0[:, 0]
@@ -140,15 +140,15 @@ class BeamLoader(object):
         self.M = G / (4 * np.pi * c)
 
         # equations for Ks and Ms for computing field energy
-        self.Ml = G * np.ones(self.num_modes)
-        self.Kl = G * (self.modes[:, 0] ** 2 + self.modes[:, 1] ** 2)
+        self.Ml = self.M * np.ones(self.num_modes)
+        self.Kl = self.M * (self.modes[:, 0] ** 2 + self.modes[:, 1] ** 2)
         # self.OMEGA = np.asarray(W0)
 
         # equations for Ks and Ms
         # M_leqn = lambda m,n,p: a*b*c/4.
         # K_leqn = lambda m,n,p: (a*b*c/4.)*((m*np.pi/a)**2 + (n*np.pi/b)**2)
 
-        print np.sqrt(self.pz ** 2 * c ** 2 + (self.mass * c ** 2) ** 2) / (self.mass * c * c)
+        # print np.sqrt(self.pz**2*c**2 + (self.mass*c**2)**2)/(self.mass*c*c)
 
         # convert mechanical momentum (P0) to canonical momentum
         self.gmc_history = []
@@ -166,7 +166,8 @@ class BeamLoader(object):
         self.P_history = [self.P]
         self.tau_history = [tau0]
 
-        print self.gmc_history
+
+        # print self.gmc_history
 
 
         # print self.pz
@@ -257,13 +258,13 @@ class BeamLoader(object):
 
             # np.dot(self.Q,ddy_int_A_x) is the same as np.einsum('i,ij->j',Q,dxintA_L)
 
-            self.px = self.px - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddx_int_A_x)
-            self.py = self.py - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddy_int_A_x)
-            self.pz = self.pz - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddz_int_A_x)
+            self.px = self.px - sign * step * (self.qs / c) * np.dot(self.Q, ddx_int_A_x)
+            self.py = self.py - sign * step * (self.qs / c) * np.dot(self.Q, ddy_int_A_x)
+            self.pz = self.pz - sign * step * (self.qs / c) * np.dot(self.Q, ddz_int_A_x)
 
             # Update modementa
             # sum over each particle for all l modes -> array of length l
-            self.P = self.P - sign * step * self.h * (1 / c) * np.einsum('ij->i', self.qs * int_A_x)
+            self.P = self.P - sign * step * (1 / c) * np.einsum('ij->i', self.qs * int_A_x)
 
         elif k == 1:
             # k = 1 means evaluating A_y for all field couplings
@@ -274,14 +275,14 @@ class BeamLoader(object):
             # LxN array->int_A_y evaluate for L modes at N particle positions
             int_A_y = np.zeros((self.num_modes, self.num_particles))
 
-            self.px = self.px - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddx_int_A_y)  # self.Q*ddx_int_A_y
-            self.py = self.py - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddy_int_A_y)  # self.Q*ddy_int_A_y
-            self.pz = self.pz - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddz_int_A_y)  # self.Q*ddz_int_A_y
+            self.px = self.px - sign * step * (self.qs / c) * np.dot(self.Q, ddx_int_A_y)  # self.Q*ddx_int_A_y
+            self.py = self.py - sign * step * (self.qs / c) * np.dot(self.Q, ddy_int_A_y)  # self.Q*ddy_int_A_y
+            self.pz = self.pz - sign * step * (self.qs / c) * np.dot(self.Q, ddz_int_A_y)  # self.Q*ddz_int_A_y
 
             # Update modementa
             # array of L x N (L modes and N particles)
             # sum over each particle for all l modes -> array of length l
-            self.P = self.P - sign * step * self.h * (1 / c) * np.einsum('ij->i', self.qs * int_A_y)
+            self.P = self.P - sign * step * (1 / c) * np.einsum('ij->i', self.qs * int_A_y)
 
 
         elif k == 2:
@@ -294,15 +295,15 @@ class BeamLoader(object):
             # LxN array->int_A_z evaluate for L modes at N particle positions
             int_A_z = calc_int_A_z(self.modes[:, 0], self.modes[:, 1], self.modes[:, 2], self.x, self.y, self.z)
 
-            self.px = self.px - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddx_int_A_z)  # self.Q*ddx_int_A_z
-            self.py = self.py - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddy_int_A_z)  # self.Q*ddy_int_A_z
-            self.pz = self.pz - sign * step * self.h * (self.qs / c) * np.dot(self.Q, ddz_int_A_z)  # self.Q*ddz_int_A_z
+            self.px = self.px - sign * step * (self.qs / c) * np.dot(self.Q, ddx_int_A_z)  # self.Q*ddx_int_A_z
+            self.py = self.py - sign * step * (self.qs / c) * np.dot(self.Q, ddy_int_A_z)  # self.Q*ddy_int_A_z
+            self.pz = self.pz - sign * step * (self.qs / c) * np.dot(self.Q, ddz_int_A_z)  # self.Q*ddz_int_A_z
 
             # Update modementa
             # array of L x N (L modes and N particles)
             # sum over each particle for all l modes -> array of length l
             # move q term into int term
-            self.P = self.P - sign * step * self.h * (1 / c) * np.einsum('ij->i', self.qs * int_A_z)
+            self.P = self.P - sign * step * (1 / c) * np.einsum('ij->i', self.qs * int_A_z)
 
         else:
             raise ValueError("Coordinate index outside of range [0,1,2]")
@@ -310,23 +311,23 @@ class BeamLoader(object):
     def update_x(self, step=1.):
         '''Perform the map for x, consisting of a half kick, drift, then half kick'''
 
-        self.kick_p(k=0, sign=1, step=0.5 * step)
+        self.kick_p(k=0, sign=1, step=1.0 * step)
         self.update_q(k=0, step=step)
-        self.kick_p(k=0, sign=-1, step=0.5 * step)  # reverse the sign for the 2nd kick due to similarity transform
+        self.kick_p(k=0, sign=-1, step=1.0 * step)  # reverse the sign for the 2nd kick due to similarity transform
 
     def update_y(self, step=1.):
         '''Perform the map for y consisting of a half kick, drift, then half kick'''
 
-        self.kick_p(k=1, sign=1, step=0.5 * step)
+        self.kick_p(k=1, sign=1, step=1.0 * step)
         self.update_q(k=1, step=step)
-        self.kick_p(k=1, sign=-1, step=0.5 * step)  # reverse the sign for the 2nd kick due to similarity transform
+        self.kick_p(k=1, sign=-1, step=1.0 * step)  # reverse the sign for the 2nd kick due to similarity transform
 
     def update_z(self, step=1.):
         '''Perform the map for y consisting of a half kick, drift, then half kick'''
 
-        self.kick_p(k=2, sign=1, step=0.5 * step)
+        self.kick_p(k=2, sign=1, step=1.0 * step)
         self.update_q(k=2, step=step)
-        self.kick_p(k=2, sign=-1, step=0.5 * step)  # reverse the sign for the 2nd kick due to similarity transform
+        self.kick_p(k=2, sign=-1, step=1.0 * step)  # reverse the sign for the 2nd kick due to similarity transform
 
     def rotate_fields(self, step=1.):
         '''Update field phases self consistently with the time step.
@@ -342,9 +343,11 @@ class BeamLoader(object):
         currentQ = self.Q
         currentP = self.P
 
+        # print currentQ
+
         self.Q = currentQ * np.cos(self.omegas * step * self.h) + currentP * (1 / (self.M * self.omegas)) * np.sin(
             self.omegas * step * self.h)
-
+        # print currentQ
         self.P = currentP * np.cos(self.omegas * step * self.h) - self.omegas * self.M * currentQ * np.sin(
             self.omegas * step * self.h)
 
@@ -450,14 +453,25 @@ class BeamLoader(object):
         bQH = np.asarray(self.Q_history)  # convert to numpy array
         bPH = np.asarray(self.P_history)  # convert to numpy array
 
-        E_modes = (0.5 * bPH * bPH / self.Ml + 0.5 * self.Kl * bQH * bQH)
+        E_modes = c * (0.5 * bPH * bPH / self.Ml + 0.5 * self.Kl * bQH * bQH)
 
         return E_modes
 
     def total_particle_energy_history(self):
         '''Returns the total particle energy for each timestep in the simulation'''
 
-        return np.sum(self.gmc_history, 1) * c  # sum over all particles and multiply by c
+        return np.dot(bload.gmc_history, bload.mass) * c * c
+        # return np.sum(self.gmc_history,1)*c*c*self.mass #sum over all particles and multiply by m-c^2 b/c gmc returns gamma
+
+    def energy_change_sytem(self):
+        '''Return the change in total system energy over the course of the simulation'''
+
+        Ef_total = np.sum(self.mode_energies(), 1)  # get the mode energies and sum over them for each timesetp
+        Ep_total = self.total_particle_energy_history()
+
+        E_tot = Ef_total + Ep_total
+
+        return ((E_tot[-1] - E_tot[0]) / (E_tot[0])) * 100.
 
     def plot_total_system_energy(self):
         '''Compute and plot the total energy - particles plus fields - for the simulation'''
@@ -547,12 +561,13 @@ class BeamLoader(object):
         ax = fig.gca()
 
         Q0s = np.asarray([Q[0] for Q in self.Q_history])
-        P0s = np.asarray([P[0] for P in self.P_history])
+        # rescale P by 1/M*omega to normalize
+        scaled_P0s = np.asarray([P[0] / (self.Ml[0] * self.omegas[0]) for P in self.P_history])
 
-        ax.plot(Q0s, P0s)
+        ax.plot(Q0s, scaled_P0s)
 
-        ax.set_xlabel('Q')
-        ax.set_ylabel('P')
+        ax.set_xlabel(r'Q')
+        ax.set_ylabel(r'P/$M \Omega$')
         ax.set_title('Fields in mode 110')
         plt.savefig('field_rotation.pdf', bbox_inches='tight')
 
