@@ -1,6 +1,7 @@
 import numpy as np
 from struct import pack, unpack, calcsize
 from sys import byteorder
+import collections
 
 
 class readSDDS:
@@ -37,11 +38,15 @@ class readSDDS:
         self.param_key = 'i'  # Include row count with parameters
         self.column_key = ''
         self.pointer = 0
+        self.string_in_params = []
+        self.string_in_columns = []
 
         self.param_size = 0
         self.column_size = 0
 
         self.param_names = ['rowCount']
+        self.parameters = False
+        self.columns = False
 
     def _read_header(self):
         """
@@ -79,7 +84,15 @@ class readSDDS:
         # TODO: Need to check data types on other systems (weird that need use i for longs here)
         # Construct format string for parameters and columns
         for param in self.params:
-            if param.find('type=double') > -1:
+            if param.find('type=string') > -1:
+                if param.find('fixed_value') > -1:  # Fixed value not present means string is in binary data
+                    print 'passed'
+                    pass
+                else:
+                    print 'used'
+                    self.param_key += 'i'
+                    self.string_in_params.append(len(self.param_key))
+            elif param.find('type=double') > -1:
                 self.param_key += 'd'
             elif param.find('type=long') > -1:
                 self.param_key += 'i'
@@ -99,9 +112,12 @@ class readSDDS:
                 pass
 
         for param in self.params:
-            i0 = param.find('name') + 5
-            ie = param[i0:].find(',')
-            self.param_names.append(param[i0:i0+ie])
+            if param.find('type=string') > -1 and param.find('fixed_value=') > -1:
+                pass
+            else:
+                i0 = param.find('name') + 5
+                ie = param[i0:].find(',')
+                self.param_names.append(param[i0:i0+ie])
 
         self.param_size = calcsize(self.param_key)
         self.column_size = calcsize(self.column_key)
@@ -124,6 +140,11 @@ class readSDDS:
             Dictionary object with parameters names and values.
         """
 
+        if self.parameters:
+            return self.parameters
+        else:
+            pass
+
         try:
             self.parsef
         except AttributeError:
@@ -132,19 +153,25 @@ class readSDDS:
             if self.verbose:
                 print "Header data read and parsed."
 
-        parameters = {}
+        self.parameters = collections.OrderedDict()#{}
 
-        # Reset pointer back to beginning of binary data
+        # Reset pointer back to beginning of binary data to start readin there
         self.openf.seek(self.pointer)
 
         param_data = unpack(self.param_key, self.openf.read(self.param_size))
 
-        for param, value in zip(self.param_names, param_data):
-            parameters[param] = value
+        for i, (param, value) in enumerate(zip(self.param_names, param_data)):
+            if (i + 1) in self.string_in_params:  # This case is to catch strings embedded in binary
+                print value,
+                str_size = calcsize('c' * value)
+                value = unpack('c' * value, self.openf.read(str_size))
+                self.parameters[param] = ''.join(value)
+            else:
+                self.parameters[param] = value
 
-        self.row_count = parameters['rowCount']
+        self.row_count = self.parameters['rowCount']
 
-        return parameters
+        return self.parameters
 
     def read_columns(self):
         """
@@ -155,18 +182,22 @@ class readSDDS:
         columns: ndarray
             NumPy array with column data.
         """
+        if self.columns:
+            return np.asarray(self.columns)
+        else:
+            pass
 
         try:
             self.row_count
         except AttributeError:
             self.read_params()
 
-        columns = []
-
+        self.columns = []
+        # TODO: Fails to unpack with watchpoint from simple example.
         for i in range(self.row_count):
-            columns.append(unpack(self.column_key, self.openf.read(self.column_size)))
+            self.columns.append(unpack(self.column_key, self.openf.read(self.column_size)))
 
-        return np.asarray(columns)
+        return np.asarray(self.columns)
 
 
 headSDDS = "SDDS1\n"
