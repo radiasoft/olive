@@ -1,0 +1,7 @@
+Q: Charge, TOTAL=135e-12
+
+D1: Drift, L=0.
+
+WP1: Watch, FILENAME="bunch.wp", mode=coordinate
+
+Line1: line=(Q,D1,WP1,D1)

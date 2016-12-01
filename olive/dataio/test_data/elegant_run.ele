@@ -1,0 +1,24 @@
+&run_setup
+	lattice = lattice.lte,
+	p_central_mev = 135,
+	output = %s.out
+&end
+
+&run_control
+&end
+
+&bunched_beam
+	n_particles_per_bunch = 10,
+	emit_nx = 1e-6,
+	beta_x = 5.0,
+	emit_ny = 1e-6,
+	beta_y = 5.0,
+	sigma_dp = 0.001,
+	sigma_s = "(5e-12 c_mks *)",
+	distribution_cutoff[0] = 3*2,
+	distribution_type[0] = 3*"gaussian",
+	bunch = %s.bun
+&end
+
+&track 
+&end
