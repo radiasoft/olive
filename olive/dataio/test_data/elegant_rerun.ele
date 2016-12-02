@@ -1,0 +1,15 @@
+&run_setup
+	lattice = lattice.lte,
+	p_central_mev = 135,
+	output = %s.out
+&end
+
+&run_control
+&end
+
+&sdds_beam
+	input = write_out.sdds
+&end
+
+&track 
+&end

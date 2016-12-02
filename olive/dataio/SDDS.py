@@ -11,10 +11,12 @@ class readSDDS:
         and column data through the 'read_columns' method.
 
     Caveats:
-        - System is little-endian
+        - System is assumed little-endian
         - Data stored in binary
         - No array data (only parameters and columns)
-        - No string data (unless stored as fixed value)
+        - Strings stored as fixed are not included in parameters (strings stored in binary data are included)
+        - Files that store string data in columns are not currently supported
+        - Multipage SDDS files are nt currently supported
     """
 
     def __init__(self, input_file, verbose=False):
@@ -81,7 +83,6 @@ class readSDDS:
             if line.find('&column') == 0:
                 columns.append(line)
 
-        # TODO: Need to check data types on other systems (weird that need use i for longs here)
         # Construct format string for parameters and columns
         for param in self.params:
             if param.find('type=string') > -1:
@@ -202,7 +203,7 @@ class readSDDS:
             self.read_params()
 
         self.columns = []
-        # TODO: Fails to unpack with watchpoint from simple example.
+
         for i in range(self.row_count):
             self.columns.append(unpack(self.column_key, self.openf.read(self.column_size)))
 
