@@ -35,8 +35,8 @@ class readSDDS:
         self.header = []
         self.params = []
 
-        self.param_key = 'i'  # Include row count with parameters
-        self.column_key = ''
+        self.param_key = '=i'  # Include row count with parameters
+        self.column_key = '='
         self.pointer = 0
         self.string_in_params = []
         self.string_in_columns = []
