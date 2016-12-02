@@ -1,7 +1,6 @@
 import numpy as np
 from struct import pack, unpack, calcsize
 from sys import byteorder
-import collections
 
 
 class readSDDS:
@@ -35,7 +34,7 @@ class readSDDS:
         self.header = []
         self.params = []
 
-        self.param_key = '=i'  # Include row count with parameters
+        self.param_key = ['=i']  # Include row count with parameters
         self.column_key = '='
         self.pointer = 0
         self.string_in_params = []
@@ -73,6 +72,7 @@ class readSDDS:
         self.parsef = True
 
         columns = []
+        parameter_position = 0
 
         # Find Parameters and Column
         for line in self.header:
@@ -90,16 +90,20 @@ class readSDDS:
                     pass
                 else:
                     print 'used'
-                    self.param_key += 'i'
-                    self.string_in_params.append(len(self.param_key))
+                    self.param_key.append('zi')
+                    parameter_position +=2
+                    self.param_key.append('=')
             elif param.find('type=double') > -1:
-                self.param_key += 'd'
+                self.param_key[parameter_position] += 'd'
             elif param.find('type=long') > -1:
-                self.param_key += 'i'
+                self.param_key[parameter_position] += 'i'
             elif param.find('type=short') > -1:
-                self.param_key += 's'
+                self.param_key[parameter_position] += 's'
             else:
                 pass
+
+        if self.param_key[-1] == '=':
+            self.param_key.pop(-1)  # Remove the last '=' that will be added if final entry is string
 
         for column in columns:
             if column.find('type=double') > -1:
@@ -119,7 +123,7 @@ class readSDDS:
                 ie = param[i0:].find(',')
                 self.param_names.append(param[i0:i0+ie])
 
-        self.param_size = calcsize(self.param_key)
+        #self.param_size = calcsize(self.param_key)
         self.column_size = calcsize(self.column_key)
 
         if self.verbose:
@@ -153,21 +157,26 @@ class readSDDS:
             if self.verbose:
                 print "Header data read and parsed."
 
-        self.parameters = collections.OrderedDict()#{}
+        self.parameters = {}
 
         # Reset pointer back to beginning of binary data to start readin there
         self.openf.seek(self.pointer)
 
-        param_data = unpack(self.param_key, self.openf.read(self.param_size))
-
-        for i, (param, value) in enumerate(zip(self.param_names, param_data)):
-            if (i + 1) in self.string_in_params:  # This case is to catch strings embedded in binary
-                print value,
-                str_size = calcsize('c' * value)
-                value = unpack('c' * value, self.openf.read(str_size))
-                self.parameters[param] = ''.join(value)
+        param_data = ()
+        for key in self.param_key:
+            if key[0] == 'z':
+                str_length = unpack('i', self.openf.read(4))[0]
+                str_size = calcsize('=' + 'c' * str_length)
+                value = unpack('=' + 'c' * str_length, self.openf.read(str_size))
+                value = ''.join(value)
+                param_data = param_data + (value,)
             else:
-                self.parameters[param] = value
+                value = unpack(key, self.openf.read(calcsize(key)))
+                print value
+                param_data = param_data + value
+
+        for param, value in zip(self.param_names, param_data):
+            self.parameters[param] = value
 
         self.row_count = self.parameters['rowCount']
 
