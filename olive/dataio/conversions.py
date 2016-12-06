@@ -10,7 +10,7 @@ m_e = physical_constants['electron mass energy equivalent in MeV'][0]
 def convert_units_olive2elegant(x, px, y, py, z, pz):
 
     bunch = np.column_stack([x, px, y, py, z, pz])
-    print bunch.shape
+    #print bunch.shape
     new_bunch = np.empty_like(bunch)
 
     total_momentum = np.sqrt(px**2 + py**2 + pz**2)
@@ -19,7 +19,7 @@ def convert_units_olive2elegant(x, px, y, py, z, pz):
     new_bunch[:, 5] = new_bunch[:, 5] / m_e  # Convert to elegant's m_e*c for momentum
 
     betas = new_bunch[:, 5] / np.sqrt(1. + new_bunch[:, 5]**2)
-    print betas
+    #print betas
     new_bunch[:, [0, 2]] = bunch[:, [0, 2]] / 100.  # Convert cm to m
     new_bunch[:, 4] = -bunch[:, 4] / (betas * c) / 100.  # Flip head/tail and convert to t = s/(beta * c)
 

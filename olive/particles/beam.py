@@ -130,7 +130,6 @@ class Beam(object):
 
         '''
 
-
         # Instantiate read objects for bunch input and ouput SDDS files
         sdds_file = SDDS.readSDDS(file_name, verbose=False)
         elegant_data = sdds_file.read_columns()
@@ -142,6 +141,30 @@ class Beam(object):
         ids = olive_data[:, -1]
 
         self.add_bunch(qs, ps, IDs=ids)
+
+    def write_to_file(self,file_name,dataMode='binary'):
+        '''Write bunch data to SDDS format for elegant interpretation
+
+        Arguments:
+            file_name (string): path to elegant output file containing particle data
+            dataMode (optional[string]): Mode for writing the file - defaults to binary
+
+        '''
+
+        # Create SDDS output object
+        output_file = SDDS.writeSDDS()
+
+        # Convert units back to elegant
+        elegant_data = conversions.convert_units_olive2elegant(self.x, self.px, self.y, self.py,
+                                                               self.z, self.pz)
+
+        # Columns of data corresponding to necessary attributes
+        for i, (dim, unit) in enumerate(zip(('x', 'xp', 'y', 'yp', 't', 'p'), ('m', '', 'm', '', 's', 'm$be$nc'))):
+            output_file.create_column(dim, elegant_data[:, i], 'double', colUnits=unit)
+
+        # save file
+        output_file.save_sdds(file_name, dataMode=dataMode)
+
 
 
     def convert_mechanical_to_canonical(self,fields):
