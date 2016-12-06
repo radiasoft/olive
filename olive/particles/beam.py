@@ -20,6 +20,8 @@
 import numpy as np
 from scipy.constants import m_e as me_mks
 from scipy.constants import c as c_mks
+from olive.dataio import SDDS
+from olive.dataio import conversions
 
 # Set the default mass and charge for an electron
 m = me_mks*1.e3 #cgs
@@ -56,13 +58,14 @@ class Beam(object):
         #self.exists = np.asarray([False]*self.num)
         
         
-    def add_bunch(self, positions, momenta, weights=None,fields=None):
+    def add_bunch(self, positions, momenta, weights=None, IDs=None):
         '''Initialize bunch of particles. Overwrite position and momentum arrays
         
         Arguments:
             positions (ndarray): array of positions - [x, y, z]
             momenta (ndarray): array of momenta - [px, py, pz]
             weights (Optional[ndarray]): array of weights- [wx,wy,wz]
+            IDs (Optional[ndarray]): array of particle IDs - length # of particles
             
         
         '''
@@ -71,36 +74,75 @@ class Beam(object):
             positions = np.asarray(positions)
         if not type(momenta) == 'ndarray':
             momenta = np.asarray(momenta)
-        if not type(weights) == 'ndarray' and len(weights) >0:
-            weights = np.asarray(weights)
-        
         if not positions.shape[0] == momenta.shape[0]:
             print "Position and momentum arrays have unequal lengths"
             raise
-
-
-        # Charge and mass quantities - weighted
-        self.weights = weights #initialize weights
-        self.mass = weights * self.mass
-        self.qs = weights * self.charge
 
         # Position quantities
         self.x = positions[:, 0]
         self.y = positions[:, 1]
         self.z = positions[:, 2]
 
-        # Momentum quantities - weighted
-        self.px = weights * momenta[:, 0]
-        self.py = weights * momenta[:, 1]
-        self.pz = weights * momenta[:, 2]
-
-
         self.num_particles = len(self.x)
+
+        # initialize particle IDs
+        if not IDs is None:
+            if len(IDs) == self.num_particles:
+                self.IDs = IDs
+            else:
+                print "Number of particle IDs differs from number of particles"
+                raise
+        else:
+            self.IDs = np.arange(self.num_particles)
+
+        # initialize weights
+        if weights is None:
+            self.weights = np.ones(self.num_particles)
+        elif not type(weights) == 'ndarray':
+            weights = np.asarray(weights)
+            if len(weights) == self.num_particles:
+                self.weights = weights
+            else:
+                print "Number of particle weights differs from number of particles"
+                raise
+
+
+        # Charge and mass quantities - weighted
+        self.mass = self.weights * self.mass
+        self.qs = self.weights * self.charge
+
+        # Momentum quantities - weighted
+        self.px = self.weights * momenta[:, 0]
+        self.py = self.weights * momenta[:, 1]
+        self.pz = self.weights * momenta[:, 2]
 
         #self.tau_history = [tau0]
         #self.pos = positions
         #self.mom = momenta
         #self.beta = self.compute_beta_z()
+
+
+    def add_from_file(self,file_name):
+        '''Add a bunch from an elegant output file. Wraps 'add_bunch'
+
+        Arguments:
+            file_name (string): path to elegant output file containing particle data
+
+        '''
+
+
+        # Instantiate read objects for bunch input and ouput SDDS files
+        sdds_file = SDDS.readSDDS(file_name, verbose=False)
+        elegant_data = sdds_file.read_columns()
+        olive_data = conversions.convert_units_elegant2olive(elegant_data) #convert units
+
+        # Construct bunch from read-in data - data is in the form x,px,y,py,z,pz,ID
+        qs = olive_data[:, :6:2]
+        ps = olive_data[:, 1:6:2]
+        ids = olive_data[:, -1]
+
+        self.add_bunch(qs, ps, IDs=ids)
+
 
     def convert_mechanical_to_canonical(self,fields):
         '''Convert mechanical momenta to canonical momenta for the current particle state'''
