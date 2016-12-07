@@ -93,7 +93,7 @@ class Beam(object):
                 print "Number of particle IDs differs from number of particles"
                 raise
         else:
-            self.IDs = np.arange(self.num_particles)
+            self.IDs = np.arange(self.num_particles)+1
 
         # initialize weights
         if weights is None:
@@ -161,6 +161,10 @@ class Beam(object):
         # Columns of data corresponding to necessary attributes
         for i, (dim, unit) in enumerate(zip(('x', 'xp', 'y', 'yp', 't', 'p'), ('m', '', 'm', '', 's', 'm$be$nc'))):
             output_file.create_column(dim, elegant_data[:, i], 'double', colUnits=unit)
+
+        #Add particle IDs and weights
+        output_file.create_column('ParticleID', self.IDs, 'long')
+        output_file.create_column('ParticleID', self.weights, 'long')
 
         # save file
         output_file.save_sdds(file_name, dataMode=dataMode)
