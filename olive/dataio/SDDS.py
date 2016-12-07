@@ -240,6 +240,8 @@ class writeSDDS:
 
     sddsIdentifier = headSDDS
 
+    key_indentity = {'double': 'd', 'short': 's', 'long': 'i'}
+
     def __init__(self, page=1, readInFormat='numpyArray'):
         """
         Initialize SDDS object for storing parameter/column data and writing.
@@ -253,6 +255,7 @@ class writeSDDS:
         self.parameters = []
         self.parameterData = []
         self.parameterAttributes = []
+        self.column_key = '='
 
     def create_column(self, colName, colData, colType, colUnits='', colSymbol='', colFormatStr='', colDescription=''):
         """
@@ -281,6 +284,12 @@ class writeSDDS:
         self.columnAttributes[-1].append(colName)
         self.columnAttributes[-1].append(colType)
         self.columnData.append(colData)
+
+        try:
+            self.column_key += self.key_indentity[colType]
+        except KeyError:
+            print "Not a Valid Data Type"
+
         for attribute in (colUnits, colSymbol, colFormatStr, colDescription):
             if attribute:
                 self.columnAttributes[-1].append(attribute)
@@ -384,7 +393,10 @@ class writeSDDS:
         if self.dataMode == 'ascii':
             np.savetxt(outputFile, columnDataPrint)
         elif self.dataMode == 'binary':
-            columnDataPrint.astype('float64').tofile(outputFile)
+            for row in columnDataPrint:
+                outputFile.write('%s' % (pack(self.column_key, *row)))
+        # elif self.dataMode == 'binary':
+        #     columnDataPrint.astype('float64').tofile(outputFile)
         else:
             print "NOT A DEFINED DATA TYPE"
 
