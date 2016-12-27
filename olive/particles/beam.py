@@ -29,7 +29,9 @@ q = 4.80320451e-10 #esu 1.*e
 c = c_mks*1.e2 #cgs
 
 class Beam(object):
-    
+    '''The beam class contains all particle data and I/O member functions'''
+
+
     def __init__(self, pdict=False):
         '''
         Arguments:
@@ -50,12 +52,6 @@ class Beam(object):
 
         self.canonical = False #flag determining if momentum is mechanical or canonical
         self.num_particles = 0 #initially empty bunch
-
-        #self.pos = np.zeros((self.num, self.dim))
-        #self.mom = np.zeros((self.num, self.dim))
-        #self.beta = 0. #single beta for entire bunch!
-        #self.weights = np.zeros(self.num) #not needed for this
-        #self.exists = np.asarray([False]*self.num)
         
         
     def add_bunch(self, positions, momenta, weights=None, IDs=None):
@@ -115,11 +111,6 @@ class Beam(object):
         self.px = self.weights * momenta[:, 0]
         self.py = self.weights * momenta[:, 1]
         self.pz = self.weights * momenta[:, 2]
-
-        #self.tau_history = [tau0]
-        #self.pos = positions
-        #self.mom = momenta
-        #self.beta = self.compute_beta_z()
 
 
     def add_from_file(self,file_name):
@@ -238,12 +229,25 @@ class Beam(object):
         return np.asarray([self.x,self.px,self.y,self.py,self.z,self.pz])
 
     def total_particle_energy_history(self):
-        '''Returns the total particle energy for each timestep in the simulation'''
+        '''
+        Return the total particle energy for each step in the simulation
+
+        Returns:
+            energy_array (ndarray): 1xnsteps array of particle energy in ergs
+
+        '''
 
         return np.dot(self.gmc_history, self.mass) * c * c
 
 
-    def plot_particle_energy(self):
+    def plot_particle_energy(self, save=True):
+
+        '''
+        Plot the total particle energy through the simulation history
+
+        Arguments:
+            save (Optional[bool]): If true, save the figure. Defaults to True
+        '''
 
         particle_energy = self.total_particle_energy_history()
 
@@ -254,25 +258,53 @@ class Beam(object):
         ax.set_xlabel('Time [s]')
         ax.set_ylabel('Particle Energy [ergs]')
         ax.set_title('Total Particle Energy vs. Time')
-        plt.savefig('particle_energy.pdf', bbox_inches='tight')
 
-    def plot_coordinates(self):
-        '''Plot the particle coordinates history'''
+        if save:
+            plt.savefig('particle_energy.pdf', bbox_inches='tight')
+
+    def plot_coordinates(self, numPlot, IDs=None,save=True):
+        '''Plot the particle coordinates history for
+
+        Arguments:
+            numPlot (int): number of particles for which coordinates will be plotted <= num_particles
+            IDs (Optional[array-like]): list of particle IDs to plot <=num_particles
+            save (Optional[bool]): If true, save the figure. Defaults to True
+        '''
+
+        if not numPlot <= self.num_particles:
+            print "Number of particles specified cannot exceed number of simulated particles"
+            raise
+
+        if not IDs is None:
+            z_vals = np.asarray(self.z_history)[:, IDs]
+            y_vals = np.asarray(self.y_history)[:, IDs]
+            x_vals = np.asarray(self.x_history)[:, IDs]
+        else:
+            z_vals = np.asarray(self.z_history)[:, :numPlot]
+            y_vals = np.asarray(self.y_history)[:, :numPlot]
+            x_vals = np.asarray(self.x_history)[:, :numPlot]
 
         fig = plt.figure(figsize=(12, 8))
 
         ax = fig.gca()
-        ax.plot(np.asarray(self.tau_history) / c, np.asarray(self.z_history)[:, 0], label='z1')
-        ax.plot(np.asarray(self.tau_history) / c, np.asarray(self.z_history)[:, 1], label='z2')
-        ax.plot(np.asarray(self.tau_history) / c, np.asarray(self.x_history)[:, 0], label='x1')
-        ax.plot(np.asarray(self.tau_history) / c, np.asarray(self.x_history)[:, 1], label='x2')
-        # ax.plot(np.asarray(self.tau_history)/c,self.y_history[:,0], label = 'y')
+
+        for index,xs in enumerate(x_vals):
+            x_lab = 'x{}'.format(index)
+            ax.plot(np.asarray(self.tau_history) / c, xs, label=x_lab)
+        for index,ys in enumerate(y_vals):
+            y_lab = 'x{}'.format(index)
+            ax.plot(np.asarray(self.tau_history) / c, ys, label=y_lab)
+        for index, zs in enumerate(z_vals):
+            z_lab = 'x{}'.format(index)
+            ax.plot(np.asarray(self.tau_history) / c, zs, label=z_lab)
 
         ax.set_xlabel('Time')
         ax.set_ylabel('Coordinates')
-        ax.set_title('Particle in mode 110')
+        ax.set_title('Particle motion')
         ax.legend(loc='best')
-        plt.savefig('coordinates_110.pdf', bbox_inches='tight')
+
+        if save:
+            plt.savefig('particle_coordinates.pdf', bbox_inches='tight')
 
     def plot_momenta(self):
         '''Plot the particle coordinates history'''

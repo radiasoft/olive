@@ -14,7 +14,13 @@ c = c_mks*1.e2
 class simulator(object):
 
     def __init__(self,beam,fields,maps):
-        '''Initializes a simulator with beam, field, and map objects'''
+        '''Initializes a simulator with beam, field, and map objects
+
+         Arguments:
+            beam (Olive): Olive beam object describing bunch
+            fields (Olive): Olive field object describing fields
+            maps (Olive): Olive map object describing transformations
+        '''
 
         self.beam = beam
         self.fields = fields
@@ -23,6 +29,10 @@ class simulator(object):
 
     def define_simulation(self, maxTau, numSteps):
         '''Provide times and timestep information for simulation. Defines history arrays.
+
+        Arguments:
+            maxTau (float): final z-value of the simulation
+            numSteps (int): number of steps for the simulation
 
         '''
 
@@ -63,7 +73,12 @@ class simulator(object):
 
 
     def step(self, N=1):
-        '''Perform N steps in c-tau'''
+        '''Perform N steps in c-tau
+
+        Arguments:
+            N (Optional[int]): Number of steps to perform. Defaults to 1.
+
+        '''
 
         self.maps.initialize_beam(self.beam, self.fields)
 
@@ -98,7 +113,12 @@ class simulator(object):
     ####################################
 
     def mode_energy_history(self):
-        '''Returns an array of mode-energies for all timesteps in the simulation'''
+        '''Returns an array of mode-energies for all timesteps in the simulation
+
+        Returns:
+            E_modes (ndarray): numModes x numSteps array of mode energies
+
+        '''
 
         bQH = np.asarray(self.Q_history)  # convert to numpy array
         bPH = np.asarray(self.P_history)  # convert to numpy array
@@ -108,13 +128,20 @@ class simulator(object):
         return E_modes
 
     def total_particle_energy_history(self):
-        '''Returns the total particle energy for each timestep in the simulation'''
+        '''
+        Return the total particle energy for each step in the simulation
 
+        Returns:
+            energy_array (ndarray): 1 x numSteps array of particle energy in ergs
+
+        '''
         return np.dot(self.gmc_history, self.beam.mass) * c * c
 
 
     def energy_change_sytem(self):
-        '''Return the change in total system energy over the course of the simulation'''
+        '''Return the change in total system energy over the course of the simulation
+
+        '''
 
         Ef_total = np.sum(self.mode_energy_history(), 1)  # get the mode energies and sum over them for each timesetp
         Ep_total = self.total_particle_energy_history()
@@ -131,7 +158,7 @@ class simulator(object):
     def plot_total_system_energy(self):
         '''Compute and plot the total energy - particles plus fields - for the simulation'''
 
-        Ef_total = np.sum(self.mode_energy_history(), 1)  # get the mode energies and sum over them for each timesetp
+        Ef_total = np.sum(self.mode_energy_history(), 1)  # get the mode energies and sum over them for each timestep
         Ep_total = self.total_particle_energy_history()
 
         E_tot = Ef_total + Ep_total
@@ -145,7 +172,13 @@ class simulator(object):
         ax.set_title('Total System Energy vs. Time')
         plt.savefig('total_energy.pdf', bbox_inches='tight')
 
-    def plot_particle_energy(self):
+    def plot_particle_energy(self,save=True):
+        '''
+        Plot the total particle energy through the simulation history
+
+        Arguments:
+            save (Optional[bool]): If true, save the figure. Defaults to True
+        '''
 
         particle_energy = self.total_particle_energy_history()
 
@@ -156,7 +189,8 @@ class simulator(object):
         ax.set_xlabel('Time [s]')
         ax.set_ylabel('Particle Energy [ergs]')
         ax.set_title('Total Particle Energy vs. Time')
-        plt.savefig('particle_energy.pdf', bbox_inches='tight')
+        if save:
+            plt.savefig('particle_energy.pdf', bbox_inches='tight')
 
 
     def plot_mode_energies(self):
@@ -221,3 +255,52 @@ class simulator(object):
         ax.set_title('Fields in mode 110')
         ax.legend(loc='best')
         plt.savefig('oscillations_110.pdf', bbox_inches='tight')
+
+
+    def plot_coordinates(self, numPlot, IDs=None,save=True):
+        '''Plot the particle coordinates history for
+
+        Arguments:
+            numPlot (int): number of particles for which coordinates will be plotted <= num_particles
+            IDs (Optional[array-like]): list of particle IDs to plot <=num_particles
+            save (Optional[bool]): If true, save the figure. Defaults to True
+        '''
+
+        if not numPlot <= self.beam.num_particles:
+            print "Number of particles specified cannot exceed number of simulated particles"
+            raise
+
+        if not IDs is None:
+            z_vals = np.asarray(self.z_history)[:, IDs]
+            y_vals = np.asarray(self.y_history)[:, IDs]
+            x_vals = np.asarray(self.x_history)[:, IDs]
+        else:
+            z_vals = np.asarray(self.z_history)[:, :numPlot]
+            y_vals = np.asarray(self.y_history)[:, :numPlot]
+            x_vals = np.asarray(self.x_history)[:, :numPlot]
+
+        fig = plt.figure(figsize=(12, 8))
+
+        ax = fig.gca()
+
+        for index,xs in enumerate(x_vals):
+            x_lab = 'x{}'.format(index)
+            ax.plot(np.asarray(self.tau_history) / c, xs, label=x_lab)
+        for index,ys in enumerate(y_vals):
+            y_lab = 'x{}'.format(index)
+            ax.plot(np.asarray(self.tau_history) / c, ys, label=y_lab)
+        for index, zs in enumerate(z_vals):
+            z_lab = 'x{}'.format(index)
+            ax.plot(np.asarray(self.tau_history) / c, zs, label=z_lab)
+
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Coordinates')
+        ax.set_title('Particle motion')
+        ax.legend(loc='best')
+
+        if save:
+            plt.savefig('particle_coordinates.pdf', bbox_inches='tight')
+
+
+
+
