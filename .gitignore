@@ -67,6 +67,9 @@ target/
 **/.idea/workspace.xml 
 **/.idea/tasks.xml
 
+#Mathematica files
+*.nb
+
 #IPython notebook miscellaneous
 **/.ipynb_checkpoints/*
 
