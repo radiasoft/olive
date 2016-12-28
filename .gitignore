@@ -67,4 +67,7 @@ target/
 **/.idea/workspace.xml 
 **/.idea/tasks.xml
 
+#IPython notebook miscellaneous
+**/.ipynb_checkpoints/*
+
 #PyCharm miscellaneous
