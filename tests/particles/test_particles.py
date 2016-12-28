@@ -64,10 +64,6 @@ def bunch():
 
     return tb
 
-#mybunch = bunch()
-
-#REPLACE CLASS HERE -> Just do a list of functions
-#class TestBunch(object):
 
 def test_gamma():
     mybunch = bunch()
