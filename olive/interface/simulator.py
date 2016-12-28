@@ -17,9 +17,9 @@ class simulator(object):
         '''Initializes a simulator with beam, field, and map objects
 
          Arguments:
-            beam (Olive): Olive beam object describing bunch
-            fields (Olive): Olive field object describing fields
-            maps (Olive): Olive map object describing transformations
+            beam (olive.particles.beam.Beam): Olive object containing beam information
+            fields (olive.fields.field.Field): Olive object containing field information
+            maps (olive.maps.<Map sub-class>.Map): Olive object containing map information
         '''
 
         self.beam = beam
@@ -155,8 +155,13 @@ class simulator(object):
     ####################################
 
 
-    def plot_total_system_energy(self):
-        '''Compute and plot the total energy - particles plus fields - for the simulation'''
+    def plot_total_system_energy(self, save=True):
+        '''Compute and plot the total energy - particles plus fields - for the simulation
+
+        Arguments:
+            save (Optional[bool]): If true, save the figure. Defaults to True
+
+        '''
 
         Ef_total = np.sum(self.mode_energy_history(), 1)  # get the mode energies and sum over them for each timestep
         Ep_total = self.total_particle_energy_history()
@@ -170,7 +175,8 @@ class simulator(object):
         ax.set_xlabel('Time [s]')
         ax.set_ylabel('Total Energy [ergs]')
         ax.set_title('Total System Energy vs. Time')
-        plt.savefig('total_energy.pdf', bbox_inches='tight')
+        if save:
+            plt.savefig('total_energy.pdf', bbox_inches='tight')
 
     def plot_particle_energy(self,save=True):
         '''
@@ -193,7 +199,14 @@ class simulator(object):
             plt.savefig('particle_energy.pdf', bbox_inches='tight')
 
 
-    def plot_mode_energies(self):
+    def plot_mode_energies(self, save=True):
+        '''Compute and plot the individual mode energies for the simulation
+
+        Arguments:
+            save (Optional[bool]): If true, save the figure. Defaults to True
+
+        '''
+
         E_modes = self.mode_energy_history()
 
         fig = plt.figure(figsize=(12, 8))
@@ -205,10 +218,17 @@ class simulator(object):
         ax.set_xlabel('Time [s]')
         ax.set_ylabel('Field Energy [ergs]')
         ax.set_title('Mode Energy vs. Time')
-        plt.savefig('mode_energy.pdf', bbox_inches='tight')
+        if save:
+            plt.savefig('mode_energy.pdf', bbox_inches='tight')
 
 
-    def plot_field_rotations(self):
+    def plot_field_rotations(self, save=True):
+        '''Compute and plot the field coordinates (P vs. Q) for the entire simulation
+
+        Arguments:
+            save (Optional[bool]): If true, save the figure. Defaults to True
+
+        '''
 
         fig = plt.figure(figsize=(12, 8))
 
@@ -227,7 +247,12 @@ class simulator(object):
 
 
     def plot_field_amplitudes(self):
-        '''Plot the particle coordinates history'''
+        '''Compute and plot the field amplitudes (Ps,Qs) for the entire simulation
+
+        Arguments:
+            save (Optional[bool]): If true, save the figure. Defaults to True
+
+        '''
 
         fig = plt.figure(figsize=(12, 8))
 
@@ -254,11 +279,12 @@ class simulator(object):
         ax.set_ylabel('Amplitude')
         ax.set_title('Fields in mode 110')
         ax.legend(loc='best')
-        plt.savefig('oscillations_110.pdf', bbox_inches='tight')
+        if save:
+            plt.savefig('oscillations_110.pdf', bbox_inches='tight')
 
 
     def plot_coordinates(self, numPlot, IDs=None,save=True):
-        '''Plot the particle coordinates history for
+        '''Plot the particle coordinates history for a desired number of particles or specific particle IDs
 
         Arguments:
             numPlot (int): number of particles for which coordinates will be plotted <= num_particles
@@ -300,7 +326,3 @@ class simulator(object):
 
         if save:
             plt.savefig('particle_coordinates.pdf', bbox_inches='tight')
-
-
-
-
