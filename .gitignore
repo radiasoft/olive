@@ -62,4 +62,9 @@ docs/_build/
 # PyBuilder
 target/
 
+#Intellij Idea files - IDE environment files
+**/.idea/*
+**/.idea/workspace.xml 
+**/.idea/tasks.xml
+
 #PyCharm miscellaneous
