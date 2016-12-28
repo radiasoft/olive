@@ -15,7 +15,12 @@ c = c_mks*1.e2
 class Field(object):
 
     def __init__(self, cavity):
-        """Initialize a field object - need to specify a cavity"""
+        """Initialize a field object - need to specify a cavity
+
+        Arguments:
+            cavity (olive.fields.eigenmodes.<ModeSubClass>): an Olive object containing geometry and mode information
+
+        """
         self.cavity = cavity
         self.modes = []
         self.Q = []
@@ -80,15 +85,20 @@ class Field(object):
         self.Ml = self.cavity.get_mode_Ms(self.kx, self.ky, self.kz)
         self.Kl = self.Ml * (self.kx ** 2 + self.ky ** 2)
 
-        #Mode transverse expansion-unused
-        #self.geom_factor = np.zeros(self.num_modes)
-        #self.poly_exponent = np.zeros(self.num_modes)
+
 
 
         #Construct histories
         self.Q_history = [self.Q]
         self.P_history = [self.P]
-        #elf.tau_history = [tau0]
+
+
+
+        #DEPRECATED INITIALIZATIONS FOR TRANSVERSE MODE EXPANSION
+
+        #Mode transverse expansion
+        #self.geom_factor = np.zeros(self.num_modes)
+        #self.poly_exponent = np.zeros(self.num_modes)
 
         #Mode energy integrals
         #self.w_integrals = np.zeros(self.num_modes)
@@ -99,9 +109,6 @@ class Field(object):
         #self.wave_vecs = np.array(mode_data[:,1])
         #self.horz_powers = np.array(mode_data[:,2])
         #self.vert_powers = np.array(mode_data[:,3])
-
-
-
 
 
     def add_mode(self,frequency, initial_amplitude=False,
@@ -120,15 +127,15 @@ class Field(object):
 
 
     def return_modes(self):
+        '''Return the mode frequencies and amplitudes'''
 
-        return self.modes, self.amplitudes, self.phases
+        return self.modes, self.amplitudes
 
     def calc_A_x(self, x, y, z):
         '''
         Returns an LxN array of A_x for L modes evaluated at N particle positions.
 
         Arguments:
-            ks (ndArray): Lx3 array of wavenumbers
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -144,7 +151,6 @@ class Field(object):
         Returns an LxN array of A_y for L modes evaluated at N particle positions.
 
         Arguments:
-            ks (ndArray): Lx3 array of wavenumbers
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -160,7 +166,6 @@ class Field(object):
         Returns an LxN array of A_x for L modes evaluated at N particle positions.
 
         Arguments:
-            ks (ndArray): Lx3 array of wavenumbers
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -177,7 +182,6 @@ class Field(object):
         Returns an LxN array of x derivative of int_A_z for L modes evaluated at N particle positions.
 
         Arguments:
-            ks (ndArray): Lx3 array of wavenumbers
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -193,7 +197,6 @@ class Field(object):
         Returns an LxN array of y derivative of int_A_z for L modes evaluated at N particle positions.
 
         Arguments:
-            ks (ndArray): Lx3 array of wavenumbers
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -209,7 +212,6 @@ class Field(object):
         Returns an LxN array of z derivative of int_A_z for L modes evaluated at N particle positions.
 
         Arguments:
-            ks (ndArray): Lx3 array of wavenumbers
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -226,9 +228,6 @@ class Field(object):
         Returns an LxN array of int_A_z for L modes evaluated at N particle positions.
 
         Arguments:
-            kx (ndArray): vector of wavenumbers kx (length L)
-            ky (ndArray): vector of wavenumbers ky (length L)
-            kz (ndArray): vector of wavenumbers kz (length L)
             x (ndArray): vector of particle coordinates x (length N)
             y (ndArray): vector of particle coordinates y (length N)
             z (ndArray): vector of particle coordinates z (length N)
@@ -241,7 +240,7 @@ class Field(object):
 
 
     def compute_single_mode_Az(self, index,pos):
-        """Compute the z-component of the vector potential Az at position pos for the mode given by index
+        """DEPRECATED - Compute the z-component of the vector potential Az at position pos for the mode given by index
 
         Arguments:
             index (int): Index of the desired mode
@@ -258,7 +257,7 @@ class Field(object):
         return expansion_factor*self.amplitudes[index]*np.cos(self.frequencies[index]*tau/c + self.phases[index])
 
     def compute_all_modes_Az(self,pos):
-        """Compute the z-component of the vector potential Az for a single position for all modes
+        """DEPRECATED - Compute the z-component of the vector potential Az for a single position for all modes
 
         Arguments:
             pos (ndarray): Array of floats specifying position (x,y,z) to compute potential

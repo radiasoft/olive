@@ -25,6 +25,8 @@ class Map(object):
         '''Update for all particles a single component qk -> qk+1(or 1/2) given the momentum pk
 
         Arguments:
+            beam (olive.particles.beam.Beam): an Olive object containing beam information
+            h (Float): step size in units cm
             k (int): Index of coordinate being advance (k=0 for x, k=1 for y, k=2 for z)
             step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
 
@@ -45,6 +47,9 @@ class Map(object):
          coordinate-specific map x,y,z.
 
         Arguments:
+            beam (olive.particles.beam.Beam): an Olive object containing beam information
+            fields (olive.fields.field.Field): an Olive object containing field information
+            h (Float): step size in units cm
             k (int): Index of coordinate dictating the advance (k=0 for x, k=1 for y, k=2 for z)
             sign (int): 1 if subtracting (e.g. first step), -1 if adding (e.g. 2nd step)
             step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
@@ -58,18 +63,15 @@ class Map(object):
             ddy_int_A_x = np.zeros((fields.num_modes, beam.num_particles))
             ddz_int_A_x = np.zeros((fields.num_modes, beam.num_particles))
 
-            # print ddx_int_A_x.shape
-
             # LxN array->int_A_x evaluate for L modes at N particle positions
             int_A_x = np.zeros((fields.num_modes, beam.num_particles))
-
-            # np.dot(fields.Q,ddy_int_A_x) is the same as np.einsum('i,ij->j',Q,dxintA_L)
 
             beam.px = beam.px - sign * step * h * (beam.qs / c) * np.dot(fields.Q, ddx_int_A_x)
             beam.py = beam.py - sign * step * h * (beam.qs / c) * np.dot(fields.Q, ddy_int_A_x)
             beam.pz = beam.pz - sign * step * h * (beam.qs / c) * np.dot(fields.Q, ddz_int_A_x)
 
             # Update modementa
+            # array of L x N (L modes and N particles)
             # sum over each particle for all l modes -> array of length l
             fields.P = fields.P - sign * step * h * (1 / c) * np.einsum('ij->i', beam.qs * int_A_x)
 
@@ -117,7 +119,15 @@ class Map(object):
 
 
     def update_x(self, beam, fields, h, step=1.):
-        '''Perform the map for x, consisting of a half kick, drift, then half kick'''
+        '''Perform the map for x, consisting of a half kick, drift, then half kick
+
+        Arguments:
+            beam (olive.particles.beam.Beam): an Olive object containing beam information
+            fields (olive.fields.field.Field): an Olive object containing field information
+            h (Float): step size in units cm
+            step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
+
+        '''
 
         self.kick_p(beam, fields, h, k=0, sign=1, step=0.5 * step)
         self.update_q(beam, h, k=0, step=step)
@@ -125,7 +135,15 @@ class Map(object):
 
 
     def update_y(self, beam, fields, h, step=1.):
-        '''Perform the map for y consisting of a half kick, drift, then half kick'''
+        '''Perform the map for y consisting of a half kick, drift, then half kick
+
+        Arguments:
+            beam (olive.particles.beam.Beam): an Olive object containing beam information
+            fields (olive.fields.field.Field): an Olive object containing field information
+            h (Float): step size in units cm
+            step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
+
+        '''
 
         self.kick_p(beam, fields, h, k=1, sign=1, step=0.5 * step)
         self.update_q(beam, h, k=1, step=step)
@@ -133,7 +151,15 @@ class Map(object):
 
 
     def update_z(self, beam, fields, h, step=1.):
-        '''Perform the map for y consisting of a half kick, drift, then half kick'''
+        '''Perform the map for y consisting of a half kick, drift, then half kick
+
+        Arguments:
+            beam (olive.particles.beam.Beam): an Olive object containing beam information
+            fields (olive.fields.field.Field): an Olive object containing field information
+            h (Float): step size in units cm
+            step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
+
+        '''
 
         self.kick_p(beam, fields, h, k=2, sign=1, step=0.5 * step)
         self.update_q(beam, h, k=2, step=step)
@@ -144,6 +170,8 @@ class Map(object):
         '''Update field phases self consistently with the time step.
 
         Arguments:
+            fields (olive.fields.field.Field): an Olive object containing field information
+            h (Float): step size in units cm
             step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
 
         Note that this step applies a fixed rotation operator that only varies on the size
@@ -165,38 +193,13 @@ class Map(object):
 
 
     def initialize_beam(self, beam, fields):
-        '''Converts beam momenta to canonical and calculates needed gamma_m_c quantities'''
+        '''Converts beam momenta to canonical and calculates needed gamma_m_c quantities
+
+        Arguments:
+            beam (olive.particles.beam.Beam): an Olive object containing beam information
+            fields (olive.fields.field.Field): an Olive object containing field information
+
+        '''
 
         beam.convert_mechanical_to_canonical(fields)
         beam.calc_gamma_m_c(fields)
-
-
-    # def step(self, beam, fields, h, N=1):
-    #     '''Perform N steps in z'''
-    #
-    #     self.initialize_beam(beam, fields)
-    #
-    #     print "Beginning step 1"
-    #
-    #     i = N - 0.5
-    #
-    #     while i > 0:
-    #         # Initial half step field rotation
-    #         beam.calc_gamma_m_c(fields)
-    #         rotate_fields(fields, h, step=0.5)
-    #         update_x(beam, fields, h, step=0.5)
-    #         update_y(beam, fields, h, step=0.5)
-    #         update_z(beam, fields, h, step=1.0)
-    #         update_y(beam, fields, h, step=0.5)
-    #         update_x(beam, fields, h, step=0.5)
-    #         rotate_fields(fields, step=0.5)
-    #
-    #         # update times for diagnostics
-    #         beam.tau = self.tau + h
-    #         beam.tau_history.append(self.tau)
-    #
-    #         # update coordinate histories
-    #         self.update_histories()
-    #
-    #         i = i - 1
-
