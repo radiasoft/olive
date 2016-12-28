@@ -8,6 +8,19 @@ m_e = physical_constants['electron mass energy equivalent in MeV'][0]
 
 
 def convert_units_olive2elegant(x, px, y, py, z, pz):
+    '''
+    Convert bunch phase space coordinates from Olive units (CGS) to Elegant units
+
+    Arguments:
+        x (float): x coordinate - cm
+        px (float): x momentum coordinate - g cm /s
+        y (float): y coordinate - cm
+        py (float): py momentum coordinate - g cm /s
+        z (float): x coordinate - cm
+        pz (float): x momentum coordinate - g cm /s
+
+    '''
+
 
     bunch = np.column_stack([x, px, y, py, z, pz])
     #print bunch.shape
@@ -19,7 +32,6 @@ def convert_units_olive2elegant(x, px, y, py, z, pz):
     new_bunch[:, 5] = new_bunch[:, 5] / m_e  # Convert to elegant's m_e*c for momentum
 
     betas = new_bunch[:, 5] / np.sqrt(1. + new_bunch[:, 5]**2)
-    #print betas
     new_bunch[:, [0, 2]] = bunch[:, [0, 2]] / 100.  # Convert cm to m
     new_bunch[:, 4] = -bunch[:, 4] / (betas * c) / 100.  # Flip head/tail and convert to t = s/(beta * c)
 
@@ -27,6 +39,18 @@ def convert_units_olive2elegant(x, px, y, py, z, pz):
 
 
 def convert_units_elegant2olive(bunch, tcenter=None):
+    '''
+    Convert bunch phase space coordinates from Elegant units to Olive units (CGS)
+
+    Arguments:
+        x (float): x coordinate - m
+        px (float): x momentum coordinate - MeV/c
+        y (float): y coordinate - m
+        py (float): py momentum coordinate - MeV/c
+        z (float): x coordinate - m
+        pz (float): x momentum coordinate - MeV/c
+
+    '''
 
     new_bunch = np.empty_like(bunch)
 

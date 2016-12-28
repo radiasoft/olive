@@ -39,10 +39,10 @@ class Field(object):
             mode_nums(ndarray): Lx3 array containing mode numbers m,n,p.
             initial_amplitude(ndarray): Vector of length num_modes containing initial mode amplitudes
             initial_modementa(ndarray): Vector of length num_modes containing initial modementa
-            #####mode_data(ndarray): 2xL array containing L mode frequencies and L mode wavenumbers
-            #####phase_offset(ndarray): Vector of length num_modes containing phase offset information
-            #####mode_expansion(ndarray): 2 X num_modes array containing geometry factors and exponents for each mode
-            #####energy_integrals(ndarray): 4 X num_modes array containing integral constants for each each mode
+            mode_data(ndarray): 2xL array containing L mode frequencies and L mode wavenumbers
+            phase_offset(ndarray): Vector of length num_modes containing phase offset information
+            mode_expansion(ndarray): 2 X num_modes array containing geometry factors and exponents for each mode
+            energy_integrals(ndarray): 4 X num_modes array containing integral constants for each each mode
 
         """
 
