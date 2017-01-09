@@ -72,26 +72,31 @@ class simulator(object):
         self.P_history.append(self.fields.P)
 
 
-    def step(self, N=1):
+    def step(self, N=1, diagPeriod=1):
         '''Perform N steps in c-tau
 
         Arguments:
             N (Optional[int]): Number of steps to perform. Defaults to 1.
+            diagPeriod (Optional[int]): Number of steps to perform in between history updates
 
         '''
 
         self.maps.initialize_beam(self.beam, self.fields)
 
         h = self.h
+        diagCount = 0
+        diagTurn = False
 
         print "Beginning step 1"
 
         i = N - 0.5
 
         while i > 0:
-            self.beam.calc_gamma_m_c(self.fields)
-            self.gmc_history.append(self.beam.gmc)
+            if diagCount%diagPeriod == 0 or i < 1:
+                diagTurn = True
+
             self.maps.rotate_fields(self.fields, h, step=0.5)
+            self.beam.calc_gamma_m_c(self.fields)
             self.maps.update_x(self.beam, self.fields, h, step=0.5)
             self.maps.update_y(self.beam, self.fields, h, step=0.5)
             self.maps.update_z(self.beam, self.fields, h, step=1.0)
@@ -101,12 +106,17 @@ class simulator(object):
 
             # update times for diagnostics
             self.tau = self.tau + h
-            self.tau_history.append(self.tau)
 
-            # update coordinate histories
-            self.update_histories()
+            #update histories
+            if diagTurn:
+                self.gmc_history.append(self.beam.gmc)
+                self.tau_history.append(self.tau)
+                self.update_histories()  # update coordinate histories
 
             i = i - 1
+            diagCount = diagCount+1
+            diagTurn = False
+
 
     ####################################
     ## History computations and getters
@@ -137,18 +147,40 @@ class simulator(object):
         '''
         return np.dot(self.gmc_history, self.beam.mass) * c * c
 
-
-    def energy_change_sytem(self):
-        '''Return the change in total system energy over the course of the simulation
+    def energy_change_sytem_ergs(self):
+        '''Return the change in total system energy over the course of the simulation in ergs
 
         '''
 
-        Ef_total = np.sum(self.mode_energy_history(), 1)  # get the mode energies and sum over them for each timesetp
-        Ep_total = self.total_particle_energy_history()
+        #grab initial and final particle energy values
+        p_e_i = self.gmc_history[0]
+        p_e_f = self.gmc_history[-1]
+        Ep_change = np.dot((p_e_f-p_e_i), self.beam.mass)* c * c
 
-        E_tot = Ef_total + Ep_total
+        # get the mode energies and sum over them for each timestep
+        Ef_total = np.sum(self.mode_energy_history(), 1)
+        Ef_change = Ef_total[-1]-Ef_total[0]
 
-        return ((E_tot[-1] - E_tot[0]) / (E_tot[0])) * 100.
+        return Ep_change + Ef_change
+
+    def energy_change_sytem(self):
+        '''Return the change in total system energy over the course of the simulation as a % of the total energy
+
+        '''
+        #grab initial and final particle energy values
+        p_e_i = self.gmc_history[0]
+        p_e_f = self.gmc_history[-1]
+        Ep_final = np.dot(p_e_f, self.beam.mass)* c * c
+        Ep_change = np.dot((p_e_f-p_e_i), self.beam.mass)* c * c
+
+
+        # get the mode energies and sum over them for each timestep
+        Ef_total = np.sum(self.mode_energy_history(), 1)
+        Ef_change = Ef_total[-1]-Ef_total[0]
+
+        E_final = Ep_final + Ef_total[-1]
+
+        return 100.*(Ep_change + Ef_change) /E_final
 
     ####################################
     ## Plotting commands for diagnostics
