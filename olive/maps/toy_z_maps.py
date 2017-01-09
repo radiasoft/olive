@@ -178,15 +178,13 @@ class Map(object):
         of the time step.
 
         '''
+        #define placeholders
         currentQ = fields.Q
         currentP = fields.P
 
-        print currentQ
-
+        #update Q then P using placeholders
         fields.Q = currentQ * np.cos(fields.omegas * step * h) + currentP * (1 / (fields.M * fields.omegas)) * np.sin(
             fields.omegas * step * h)
-
-        print currentQ
 
         fields.P = currentP * np.cos(fields.omegas * step * h) - fields.omegas * fields.M * currentQ * np.sin(
             fields.omegas * step * h)
