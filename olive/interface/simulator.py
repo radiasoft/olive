@@ -72,6 +72,53 @@ class simulator(object):
         self.P_history.append(self.fields.P)
 
 
+    def step_with_determinant(self, N=1, diagPeriod=1):
+        '''Perform N steps in c-tau and compute determinant of rotation matrix as well.
+
+        Arguments:
+            N (Optional[int]): Number of steps to perform. Defaults to 1.
+            diagPeriod (Optional[int]): Number of steps to perform in between history updates
+
+        '''
+
+        self.maps.initialize_beam(self.beam, self.fields)
+
+        h = self.h
+        diagCount = 0
+        diagTurn = False
+
+        print "Beginning step 1"
+
+        i = N - 0.5
+
+        while i > 0:
+            if diagCount%diagPeriod == 0 or i < 1:
+                diagTurn = True
+
+            self.maps.rotate_fields_determinant(self.fields, h, step=0.5)
+            self.beam.calc_gamma_m_c(self.fields)
+            self.maps.update_x(self.beam, self.fields, h, step=0.5)
+            self.maps.update_y(self.beam, self.fields, h, step=0.5)
+            self.maps.update_z(self.beam, self.fields, h, step=1.0)
+            self.maps.update_y(self.beam, self.fields, h, step=0.5)
+            self.maps.update_x(self.beam, self.fields, h, step=0.5)
+            self.maps.rotate_fields_determinant(self.fields, h, step=0.5)
+
+            # update times for diagnostics
+            self.tau = self.tau + h
+
+            #update histories
+            if diagTurn:
+                self.gmc_history.append(self.beam.gmc)
+                self.tau_history.append(self.tau)
+                self.update_histories()  # update coordinate histories
+
+            i = i - 1
+            diagCount = diagCount+1
+            diagTurn = False
+
+
+
     def step(self, N=1, diagPeriod=1):
         '''Perform N steps in c-tau
 

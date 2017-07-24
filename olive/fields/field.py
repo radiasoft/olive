@@ -26,13 +26,14 @@ class Field(object):
         self.Q = []
         self.P = []
         self.num_modes = 0
-        self.frequencies = []
+        #self.frequencies = []
         self.geom_factor = []
         self.poly_exponent = []
         self.w_integrals = []
         self.c_integrals = []
         self.t_integrals = []
         self.x_integrals = []
+        self.det = []
 
     def create_modes(self,mode_nums, initial_amplitude, initial_modementa, phase_offset=False,
                      mode_expansion=False, energy_integrals=False):

@@ -166,6 +166,39 @@ class Map(object):
         self.kick_p(beam, fields, h, k=2, sign=-1, step=0.5 * step)  # reverse the sign for the 2nd kick due to similarity transform
 
 
+    def rotate_fields_determinant(self, fields, h, step=1.):
+        '''Update field phases self consistently with the time step.
+
+        Arguments:
+            fields (olive.fields.field.Field): an Olive object containing field information
+            h (Float): step size in units cm
+            step (Float): Fraction of a step to advance the coordinates (usually 0.5 or 1)
+
+        Note that this step applies a fixed rotation operator that only varies on the size
+        of the time step.
+
+        '''
+        #define placeholders
+        currentQ = fields.Q
+        currentP = fields.P
+
+        rot_mat = np.asarray([[np.cos(fields.omegas * 1 * h),
+                               -1. * fields.omegas * fields.M * np.sin(fields.omegas * 1. * h)],
+                              [(1 / (fields.M * fields.omegas)) * np.sin(fields.omegas * 1. * h),
+                               np.cos(fields.omegas * 1. * h)]])
+        #print rot_mat.shape
+
+        # append the determinant of the rotation matrix
+        fields.det.append(np.asarray([np.linalg.slogdet(rot_mat[:,:,i]) for i in range(rot_mat.shape[-1])]))
+
+        #update Q then P using placeholders
+        fields.Q = currentQ * np.cos(fields.omegas * step * h) + currentP * (1 / (fields.M * fields.omegas)) * np.sin(
+            fields.omegas * step * h)
+
+        fields.P = currentP * np.cos(fields.omegas * step * h) - fields.omegas * fields.M * currentQ * np.sin(
+            fields.omegas * step * h)
+
+
     def rotate_fields(self, fields, h, step=1.):
         '''Update field phases self consistently with the time step.
 
@@ -181,6 +214,7 @@ class Map(object):
         #define placeholders
         currentQ = fields.Q
         currentP = fields.P
+
 
         #update Q then P using placeholders
         fields.Q = currentQ * np.cos(fields.omegas * step * h) + currentP * (1 / (fields.M * fields.omegas)) * np.sin(
