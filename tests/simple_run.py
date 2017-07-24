@@ -1,7 +1,7 @@
 """
 
 simple_run is an example file which demonstrates the OLIVE algorithm using 4 particles and 3 modes
-in a pillbox cavity. The example demonstrates the basic sequencing and usage of hte OLIVE codebase
+in a rectangular cavity. The example demonstrates the basic sequencing and usage of hte OLIVE codebase
 as well as a few simple diagnostics.
 
 Nathan Cook
